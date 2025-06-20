@@ -1,0 +1,43 @@
+{%extends "master.html" %}
+
+{%block title%} New Password {%endblock%}
+
+{%block content%}
+<center>
+
+    <form action="" method="post">   
+        {% csrf_token %}
+            <pre>
+            <!-- GITHUB INFO -->
+            <label for="repo">Github Repository Link</label>
+            <input type="text" name="repo" id="repo">
+            
+            <label for="token">Token</label>
+            <input type="text" name="token" id="token">
+            
+            <label for="username">Username</label>
+            <input type="text" name="username" id="username">
+
+            <label for="path">Path</label>
+            <input type="text" name="path" id="path">
+
+            <label for="repo_password">Password</label>
+            <input type="password" name="repo_password" id="repo_password">
+            
+            <!-- PASSWORD INFO -->
+            <label for="name">Name</label>
+            <input type="text" name="name" id="name">
+            
+            <label for="uname">Username</label>
+            <input type="text" name="uname" id="uname">
+            
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password">
+            
+            <!-- SUBMIT -->
+            <input type="submit" value="Save Password">
+        </pre>
+        </form>
+        
+</center>
+{%endblock%}
