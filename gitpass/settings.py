@@ -67,6 +67,10 @@ TEMPLATES = [
     },
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://git-pass.onrender.com"
+]
+
 WSGI_APPLICATION = 'gitpass.wsgi.application'
 
 
