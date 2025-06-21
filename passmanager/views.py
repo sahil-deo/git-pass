@@ -17,9 +17,10 @@ def passwords(request):
         _repo = request.COOKIES.get('_repo')
         _username = request.COOKIES.get('_username')
         _path = request.COOKIES.get('_path')
+        _repopass = request.POST.get('repo_password')
 
         
-        old_content = get_file_from_github(_username, _repo, _path, "password",  _token)
+        old_content = get_file_from_github(_username, _repo, _path, _repopass,  _token)
         print(old_content)
         content = convertFromString(old_content)
         print(content)
@@ -37,6 +38,7 @@ def newpassword(request):
         _name = request.POST.get('name')
         _uname = request.POST.get('uname')
         _pass = request.POST.get('password')
+        _repopass = request.POST.get('repo_password')
 
         _token = request.COOKIES.get('_token')
         _repo = request.COOKIES.get('_repo')
@@ -45,12 +47,12 @@ def newpassword(request):
         
         content = [_name, _uname, _pass]
 
-        old_content = convertFromString(get_file_from_github(_username, _repo, _path, "password", _token))
+        old_content = convertFromString(get_file_from_github(_username, _repo, _path, _repopass, _token))
         print(old_content)
         old_content.append(content)
         print(old_content)
 
-        push_to_github(_token, _username, _repo, _path, convertToString(old_content), "password")
+        push_to_github(_token, _username, _repo, _path, convertToString(old_content), _repopass)
 
     # template = loader.get_template('new.html')
     # return HttpResponse(template.render(), request)
