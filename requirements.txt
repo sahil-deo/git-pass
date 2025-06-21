@@ -2,9 +2,11 @@ asgiref==3.8.1
 certifi==2025.6.15
 charset-normalizer==3.4.2
 Django==5.2.3
+django-session-timeout==0.1.0
 idna==3.10
 pycryptodome==3.23.0
 requests==2.32.4
+six==1.17.0
 sqlparse==0.5.3
 urllib3==2.5.0
 waitress==3.0.2
