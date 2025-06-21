@@ -8,20 +8,8 @@
     <form action="" method="post">   
         {% csrf_token %}
             <pre>
-            <!-- GITHUB INFO -->
-            <label for="repo">Repository Name</label>
-            <input type="text" name="repo" id="repo">
-            
-            <label for="token">Token</label>
-            <input type="text" name="token" id="token">
-            
-            <label for="username">Username</label>
-            <input type="text" name="username" id="username">
 
-            <label for="path">File Name (No Need to Create New File)</label>
-            <input type="text" name="path" id="path">
-
-            <label for="repo_password">Password (Does not work yet)</label>
+            <label for="repo_password">Master Password (Does not work yet)</label>
             <input type="password" name="repo_password" id="repo_password">
             
             <!-- PASSWORD INFO -->
@@ -36,6 +24,8 @@
             
             <!-- SUBMIT -->
             <input type="submit" value="Save Password">
+            <a href="..">Return</a>
+
         </pre>
         </form>
         

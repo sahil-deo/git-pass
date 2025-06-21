@@ -9,7 +9,28 @@
         </h1>
         <hr>
         <br>
-            <button><a href="passwords/">All Passwords</a></button>
-            <button><a href="new">New Password</a></button>
+
+    <pre>
+        
+        <form action="" method="post">
+            {% csrf_token %}
+            
+            <label for="username">Username</label>
+            <input type="text" name="username" id="username" value="{{username}}">
+            
+            <label for="token">Token</label>
+            <input type="text" name="token" id="token" value="{{token}}">
+            
+            <label for="repo">Repository Name</label>
+            <input type="text" name="repo" id="repo" value="{{repo}}">
+            
+            <label for="path">File Name (Make sure the file is present in the repo)</label>
+            <input type="text" name="path" id="path" value="{{path}}">
+
+            <input type="submit" name="action" value="All Passwords">
+
+            <input type="submit" name="action" value="New Password">
+        </form>
+    </pre>
     </center>
 {%endblock%}
