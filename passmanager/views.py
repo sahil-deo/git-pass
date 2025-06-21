@@ -52,7 +52,7 @@ def newpassword(request):
         old_content.append(content)
         print(old_content)
 
-        push_to_github(_token, _username, _repo, _path, convertToString(old_content), _repopass)
+        push_to_github(_token, _username, _repo, _path, convertToString(sortList(old_content)), _repopass)
 
     # template = loader.get_template('new.html')
     # return HttpResponse(template.render(), request)
@@ -143,7 +143,7 @@ def push_to_github(token, owner, repo, path, new_content, password, commit_msg="
     else:
         sha = None  # File does not exist yet
 
-    # Prepare content
+    # Prepare content (sort, encrypt, encode, decode)
     encoded_content = base64.b64encode(enc(new_content, password).encode()).decode()
     payload = {
         "message": commit_msg,
@@ -197,7 +197,7 @@ def convertToString(lst):
 
 def convertFromString(s):
     
-    s = s[1:]
+    s = s[0:]
     print(s)
     words = [w for w in s.split(':') if w]
     # Group every 3 words into sublists
@@ -244,3 +244,9 @@ def denc(data, password):
     print("Decrypted:", plaintext.decode())
 
     return plaintext.decode()
+
+
+def sortList(lst):
+    sort =  sorted(lst, key=lambda x: x[0].casefold())
+    print("Sorted", sort)
+    return sort
