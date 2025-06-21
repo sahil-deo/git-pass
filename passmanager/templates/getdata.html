@@ -4,9 +4,7 @@
 {%block title%}All Passwords{%endblock%}
 
 {%block content%}
-<center>
 
-    <pre>
         
         <form action="" method="post">
             {% csrf_token %}
@@ -23,12 +21,10 @@
             <label for="path">File Name (Make sure your Repo have 'passwords.txt' file)</label>
             <input type="text" name="path" id="path"> -->
 
-            <label for="repo_password">Master Password (Does not work yet)</label>
+            <label for="repo_password">Master Password</label>
             <input type="password" name="repo_password" id="repo_password">
 
             <input type="submit" value="View Passwords">
             <a href="..">Return</a>
         </form>
-    </pre>
-</center>
 {%endblock%}

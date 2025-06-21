@@ -3,13 +3,11 @@
 {%block title%} New Password {%endblock%}
 
 {%block content%}
-<center>
 
     <form action="" method="post">   
         {% csrf_token %}
-            <pre>
 
-            <label for="repo_password">Master Password (Does not work yet)</label>
+            <label for="repo_password">Master Password</label>
             <input type="password" name="repo_password" id="repo_password">
             
             <!-- PASSWORD INFO -->
@@ -26,8 +24,6 @@
             <input type="submit" value="Save Password">
             <a href="..">Return</a>
 
-        </pre>
         </form>
-        
-</center>
+
 {%endblock%}

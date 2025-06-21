@@ -63,6 +63,7 @@ def newpassword(request):
 
 
 def home(request):
+    
     c_token = request.COOKIES.get('_token')
     c_repo = request.COOKIES.get('_repo')
     c_username = request.COOKIES.get('_username')
@@ -77,6 +78,7 @@ def home(request):
         _username = request.POST.get('username')
         _path = request.POST.get('path')
         _action = request.POST.get('action')
+        _mas_pass = request.POST.get('mas_pass')
 
         if _action == "All Passwords":
             redirect_url = "/passwords/"
@@ -86,13 +88,13 @@ def home(request):
             redirect_url = "/"  # fallback
         
         response = HttpResponseRedirect(redirect_url)
-        if c_token == "none" or (c_token != _token):
-            response.set_cookie('_token', _token)
-        if c_repo == "none" or c_repo != _repo:
+        if c_token == "None" or (c_token != _token and _token != "Token is Saved" and _token != ""):
+            response.set_cookie('_token', enc(_token, _mas_pass))
+        if c_repo == "None" or c_repo != _repo:
             response.set_cookie('_repo', _repo)
-        if c_path == "none" or c_path != _path:
+        if c_path == "None" or c_path != _path:
             response.set_cookie('_path', _path)
-        if c_username == "none" or c_username != _username:
+        if c_username == "None" or c_username != _username:
             response.set_cookie('_username', _username)
         return response
 
@@ -101,13 +103,13 @@ def home(request):
     p = ""
     u = ""
 
-    if c_token != "none":
-        t = c_token
-    if c_repo != "none":
+    if c_token != None:
+        t = "Token is Saved"
+    if c_repo != None:
         r = c_repo
-    if c_path != "none":
+    if c_path != None:
         p = c_path
-    if c_username != "none":
+    if c_username != None:
         u = c_username
 
     context = {
@@ -117,6 +119,10 @@ def home(request):
         'username': u
     }
 
+    print(t,r,p,u)
+
+
+
     template = loader.get_template('home.html')
     return HttpResponse(template.render(context, request))
 
@@ -124,7 +130,7 @@ def home(request):
 
 def push_to_github(token, owner, repo, path, new_content, password, commit_msg="Update via token", branch="main"):
     headers = {
-        "Authorization": f"token {token}",
+        "Authorization": f"token {denc(token, password)}",
         "Accept": "application/vnd.github+json"
     }
 
@@ -163,7 +169,7 @@ def get_file_from_github(owner, repo, path, password, token=None, branch="main")
         "Accept": "application/vnd.github.v3+json"
     }
     if token:
-        headers["Authorization"] = f"token {token}"
+        headers["Authorization"] = f"token {denc(token, password)}"
 
     params = {"ref": branch}
     response = requests.get(url, headers=headers, params=params)
@@ -179,7 +185,7 @@ def get_file_from_github(owner, repo, path, password, token=None, branch="main")
     else:
         raise Exception(f"Error fetching file: {response.status_code} - {response.text}")
 
-
+ 
 def convertToString(lst):
     
    # Input list of lists
@@ -190,7 +196,8 @@ def convertToString(lst):
 
 
 def convertFromString(s):
-    s = s[0:]
+    
+    s = s[1:]
     print(s)
     words = [w for w in s.split(':') if w]
     # Group every 3 words into sublists

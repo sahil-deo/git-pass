@@ -1,36 +1,60 @@
 {% extends "master.html" %}
 {%block title %}Git-Pass{%endblock%}
-
+{%block head%}
+{%endblock%}
 {%block content%}
-    <center>
-        <h1>
-            Welcome to Git-Pass
-            
-        </h1>
+
+<center>
+
+    <h1>
+        Welcome to Git-Pass
+        
+    </h1>
         <hr>
         <br>
-
-    <pre>
-        
         <form action="" method="post">
             {% csrf_token %}
             
             <label for="username">Username</label>
             <input type="text" name="username" id="username" value="{{username}}">
-            
+
             <label for="token">Token</label>
-            <input type="text" name="token" id="token" value="{{token}}">
-            
+            <input type="text" name="token" id="token" value="{{token}}" oninput="checkInput()">
+
+            <label for="mas_pass" id="mas_pass_label">Master Password (Required to encrypt the Token)</label>
+            <input type="password" name="mas_pass" id="mas_pass">
+
             <label for="repo">Repository Name</label>
             <input type="text" name="repo" id="repo" value="{{repo}}">
-            
+
             <label for="path">File Name (Make sure the file is present in the repo)</label>
             <input type="text" name="path" id="path" value="{{path}}">
-
+ 
             <input type="submit" name="action" value="All Passwords">
-
+ 
             <input type="submit" name="action" value="New Password">
         </form>
-    </pre>
     </center>
+<script>
+    
+    var passField = document.getElementById("mas_pass")
+    var label = document.getElementById("mas_pass_label")
+    passField.style.display = "none";
+    label.style.display = "none";
+    
+    function checkInput(){
+        var passField = document.getElementById("mas_pass")
+        var tokenField = document.getElementById("token")
+        var label = document.getElementById("mas_pass_label")
+        if (tokenField.value != "Token is Saved"){
+            passField.style.display = "block";
+            label.style.display = "block";
+        }else{
+            passField.style.display = "none";
+            label.style.display = "none";
+        }
+    }
+</script>
+
+
 {%endblock%}
