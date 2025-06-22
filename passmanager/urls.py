@@ -9,5 +9,6 @@ urlpatterns = [
     path('passwords/delete/<int:id>', views.delete, name="Delete-Password"),
     path('passwords/deleteall/', views.deleteall, name="Delete-All"),
     path('settings/', views.settings, name="Settings"),
+    path('passwords/upload/', views.upload_csv, name="Upload"),
 
 ]
