@@ -95,7 +95,7 @@ def home(request):
 
 def passwords(request):
     
-    if !checkData(request):
+    if not checkData(request):
         return redirect("/")
         
 
@@ -123,7 +123,7 @@ def passwords(request):
 def newpassword(request):
     
     
-    if !checkData(request):
+    if not checkData(request):
         return redirect("/")
 
     if request.method == 'POST':
@@ -163,7 +163,7 @@ def newpassword(request):
 def settings(request):
 
     
-    if !checkData(request):
+    if not checkData(request):
         return redirect("/")
     
     c_token = request.COOKIES.get('_token')
@@ -233,7 +233,7 @@ def update(request, id):
 
 
     
-    if !checkData(request):
+    if not checkData(request):
         return redirect("/")
     
     if request.method == 'POST':
@@ -273,7 +273,7 @@ def update(request, id):
 def delete(request, id):
 
     
-    if !checkData(request):
+    if not checkData(request):
         return redirect("/")
 
     if request.method == 'POST':
@@ -299,7 +299,7 @@ def delete(request, id):
 
 def deleteall(request):
 
-    if !checkData(request):
+    if not checkData(request):
         return redirect("/")
 
     _mas_password = request.session.get('mas_password')
@@ -454,7 +454,7 @@ def fromCsv(file_path):
 def upload_csv(request):
     
     
-    if !checkData(request):
+    if not checkData(request):
         return redirect("/")
 
     
