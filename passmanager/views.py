@@ -156,7 +156,8 @@ def newpassword(request):
 
         content = [_name, _uname, _pass]
 
-        old_content = convertFromString(get_file_from_github(_token, _username, _repo, _path, _mas_password))
+        check, error, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
+        old_content = convertFromString(old_content)
         print(old_content)
         old_content.append(content)
         print(old_content)
@@ -367,9 +368,6 @@ def push_to_github(token, owner, repo, path, password, new_content, commit_msg="
         print(Exception)
         pass
 
-# In passmanager/views.py
-
-
 
 def get_file_from_github(token, owner, repo, path, password, branch="main"):
 
@@ -519,8 +517,8 @@ def upload_csv(request):
         print("This Function Was Called\n")
 
 
-        old_content = convertFromString(get_file_from_github(_token, _username, _repo, _path, _mas_password))        
-        
+        check, error, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
+        old_content = convertFromString(old_content)
         old_content.extend(data)
 
         push_to_github(_token, _username, _repo, _path, _mas_password,convertToString(sortList(old_content)))
