@@ -25,6 +25,7 @@ def checkData(request):
     else:
         return True
 
+
 def home(request):
     
     c_token = request.COOKIES.get('_token')
@@ -95,7 +96,7 @@ def home(request):
 
 def passwords(request):
     
-    if not checkData(request):
+    if checkData(request) == False:
         return redirect("/")
         
 
@@ -106,9 +107,13 @@ def passwords(request):
     _mas_password = request.session.get('mas_password')
 
     try:
-        old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
+        check, error, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
 
-        print(old_content)
+        if old_content == None:
+            del request.session['mas_password']
+            return redirect("/")
+
+        print("Content: ", old_content)
         content = convertFromString(old_content)
         print(content)
         context = {'content': content}
@@ -123,7 +128,7 @@ def passwords(request):
 def newpassword(request):
     
     
-    if not checkData(request):
+    if checkData(request) == False:
         return redirect("/")
 
     if request.method == 'POST':
@@ -163,7 +168,7 @@ def newpassword(request):
 def settings(request):
 
     
-    if not checkData(request):
+    if checkData(request) == False:
         return redirect("/")
     
     c_token = request.COOKIES.get('_token')
@@ -233,7 +238,7 @@ def update(request, id):
 
 
     
-    if not checkData(request):
+    if checkData(request) == False:
         return redirect("/")
     
     if request.method == 'POST':
@@ -273,9 +278,8 @@ def update(request, id):
 def delete(request, id):
 
     
-    if not checkData(request):
+    if checkData(request) == False:
         return redirect("/")
-
     if request.method == 'POST':
         
         _mas_password = request.session.get('mas_password')
@@ -295,11 +299,9 @@ def delete(request, id):
 
     pass
 
-
-
 def deleteall(request):
 
-    if not checkData(request):
+    if checkData(request) == False:
         return redirect("/")
 
     _mas_password = request.session.get('mas_password')
@@ -314,71 +316,107 @@ def deleteall(request):
 
     return redirect("/")
 
+def logout(request):
+
+    if checkData(request) == False:
+        return redirect("/")
+
+    del request.session['mas_password']
+    return redirect("..")
 
 
 def push_to_github(token, owner, repo, path, password, new_content, commit_msg="Update via token", branch="main"):
 
-    headers = {
-        "Authorization": f"token {denc(token, password)}",
-        "Accept": "application/vnd.github+json"
-    }
+    try:
+        headers = {
+            "Authorization": f"token {denc(token, password)}",
+            "Accept": "application/vnd.github+json"
+        }
 
-    url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
+        url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
 
-    # Get current file SHA (needed for update)
-    response = requests.get(url, headers=headers, params={"ref": branch})
-    if response.status_code == 200:
-        sha = response.json()['sha']
-    else:
-        sha = None  # File does not exist yet
+        # Get current file SHA (needed for update)
+        response = requests.get(url, headers=headers, params={"ref": branch})
+        if response.status_code == 200:
+            sha = response.json()['sha']
+        else:
+            sha = None  # File does not exist yet
 
-    # Prepare content (sort, encrypt, encode, decode)
-    encoded_content = base64.b64encode(enc(new_content, password).encode()).decode()
+        # Prepare content (sort, encrypt, encode, decode)
+        encoded_content = base64.b64encode(enc(new_content, password).encode()).decode()
 
-    payload = {
-        "message": commit_msg,
-        "content": encoded_content,
-        "branch": branch
-    }
-    if sha:
-        payload["sha"] = sha
+        payload = {
+            "message": commit_msg,
+            "content": encoded_content,
+            "branch": branch
+        }
+        if sha:
+            payload["sha"] = sha
 
-    # Push file (create or update)
-    result = requests.put(url, headers=headers, data=json.dumps(payload))
+        # Push file (create or update)
+        result = requests.put(url, headers=headers, data=json.dumps(payload))
 
-    if result.status_code in [200, 201]:
-        print("✅ File pushed successfully.")
-        return result.json()
-    else:
-        print("❌ Error:", result.text)
-        return None
+        if result.status_code in [200, 201]:
+            print("✅ File pushed successfully.")
+            return result.json()
+        else:
+            print("❌ Error:", result.text)
+            return None
+        
+    except Exception:
+        print(Exception)
+        pass
+
+# In passmanager/views.py
+
+
 
 def get_file_from_github(token, owner, repo, path, password, branch="main"):
-    
-    
-    
-    url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
-    headers = {
-        "Accept": "application/vnd.github.v3+json"
-    }
-    if token:
-        headers["Authorization"] = f"token {denc(token, password)}"
 
-    params = {"ref": branch}
-    response = requests.get(url, headers=headers, params=params)
+    try:
+        # Step 1: Decrypt token. This is where the ValueError can happen.
+        try:
+            decrypted_token = denc(token, password)
+        except ValueError: # Catch the specific "MAC check failed" error
+            return (False, "Decryption failed. Please check your Master Password.", None)
+        except Exception as e: # Catch any other unexpected decryption errors
+            print(f"An unexpected decryption error occurred: {e}")
+            return (False, "An unexpected decryption error occurred.", None)
 
-    if response.status_code == 200:
-        content_data = response.json()
-        decoded_content = base64.b64decode(content_data['content']).decode()
-        if len(decoded_content) > 10:
-            dec_content = denc(decoded_content, password)
-            return dec_content
-            pass   
-        return decoded_content
-    else:
-        raise Exception(f"Error fetching file: {response.status_code} - {response.text}")
+        headers = {
+            "Authorization": f"token {decrypted_token}",
+            "Accept": "application/vnd.github.v3+json"
+        }
+        url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
 
+        # Step 2: Get the file content
+        response = requests.get(url, headers=headers, params={"ref": branch})
 
+        if response.status_code == 200:
+            content_b64 = response.json().get('content')
+            encrypted_content = base64.b64decode(content_b64).decode()
+            
+            # Step 3: Decrypt the file content itself. This could also fail.
+            try:
+                decrypted_content = denc(encrypted_content, password)
+                return (True, "File fetched successfully.", decrypted_content)
+            except ValueError:
+                return (False, "Could not decrypt the file content. The Master Password may be incorrect for this file.", None)
+        
+        # Handle API errors
+        elif response.status_code == 401:
+            return (False, "Authentication failed. Your GitHub token is likely invalid.", None)
+        elif response.status_code == 404:
+            return (False, "File or Repository not found. Check your Username, Repo Name, and File Path.", None)
+        else:
+            error_details = response.json().get('message', response.text)
+            return (False, f"GitHub API Error: {response.status_code} - {error_details}", None)
+
+    except requests.exceptions.RequestException as e:
+        return (False, "A network error occurred. Please check your internet connection.", None)
+    except Exception as e:
+        print(f"An unexpected error occurred in get_file_from_github: {e}")
+        return (False, "An unexpected error occurred.", None)
 
 def convertToString(lst):
     # ✅ ChatGPT fix: replaced `:`-joining with JSON string
@@ -448,7 +486,6 @@ def fromCsv(file_path):
             if len(row) == 3:
                 result.append(row)
     return result
-
 
 
 def upload_csv(request):

@@ -15,22 +15,24 @@
             {% csrf_token %}
             
             <label for="username">Username</label>
-            <input type="text" name="username" id="username" value="{{username}}">
+            <input type="text" name="username" id="username" value="{{username}}" required>
 
             <label for="token">Token</label>
-            <input type="text" name="token" id="token" value="{{token}}">
+            <input type="text" name="token" id="token" value="{{token}}" required>
 
             <label for="repo">Repository Name</label>
-            <input type="text" name="repo" id="repo" value="{{repo}}">
+            <input type="text" name="repo" id="repo" value="{{repo}}" required>
 
             <label for="path">File Name (Make sure the file is present in the repo)</label>
-            <input type="text" name="path" id="path" value="{{path}}">
+            <input type="text" name="path" id="path" value="{{path}}" required>
             
             <label for="mas_password">Master Password</label>
-            <input type="password" name="mas_password" value="{{mas_password}}">
-            
+            <input type="password" name="mas_password" value="{{mas_password}}" required>
             <input type="submit" name="action" value="View Passwords">
         </form>
+        <a href="instructions/">Setup Instructions<a>
+        
+        
     </center>
 
 

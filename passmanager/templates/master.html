@@ -7,113 +7,242 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-    body {
-        font-family: sans-serif;
-        background-color: #f9f9f9;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-        flex-direction: column;
-    }
 
-    form {
-        background-color: #fff;
-        padding: 30px 40px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        width: 320px;
-        margin-bottom: 30px;
-    }
+/* --- DISCORD-INSPIRED DARK UI STYLESHEET --- */
 
-    h1 {
-        text-align: center;
-        margin-bottom: 20px;
-    }
+/* 1. Root Variables & Global Resets */
+:root {
+    --primary-blue: #5865f2;
+    --primary-blue-hover: #4752c4;
+    
+    --bg-page: #202225;          /* Outermost background */
+    --bg-card: #2f3136;          /* Form/Table container background */
+    --bg-input: #202225;          /* Input field background (dark) */
+    
+    --text-primary: #ffffff;      /* Main text (in inputs) */
+    --text-secondary: #b9bbbe;    /* Subtler text (links) */
+    --text-muted: #8e9297;       /* Muted text (labels) */
+    
+    --border-interactive: #040405; /* Border for inputs */
+    --border-divider: rgba(255, 255, 255, 0.06);
 
-    label {
-        margin-top: 12px;
-        margin-bottom: 4px;
-        font-weight: bold;
-    }
+    --border-radius-lg: 8px;
+    --border-radius-sm: 3px;
+}
 
-    input[type="text"],
-    input[type="password"] {
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-    input[type="submit"] {
-        margin-top: 20px;
-        padding: 10px;
-        border: none;
-        border-radius: 5px;
-        background-color: #2d8cf0;
-        color: white;
-        cursor: pointer;
-    }
+body {
+    font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 40px 20px;
+}
 
-    input[type="submit"]:hover {
-        background-color: #1a74d1;
-    }
+.content-wrapper {
+    width: 100%;
+    max-width: 900px;
+}
 
-    a {
-        margin-top: 15px;
-        text-align: center;
-        text-decoration: none;
-        color: #2d8cf0;
-        font-size: 14px;
-    }
+/* 2. Main Containers (Forms & Tables) */
+form,
+.table-container {
+    background-color: var(--bg-card);
+    padding: 30px 40px;
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2rem;
+}
 
-    a:hover {
-        text-decoration: underline;
-    }
+h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    text-align: center;
+    color: var(--text-primary);
+    margin-bottom: 2rem;
+}
 
-    .table-container {
-        background-color: #fff;
-        padding: 30px 40px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        max-width: 900px;
-        overflow-x: auto;
-    }
+a {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 500;
+    transition: text-decoration 0.2s ease;
+}
 
-    table {
-        width: 50%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
+a:hover {
+    text-decoration: underline;
+}
 
-    th, td {
-        padding: 12px 15px;
-        text-align: center;
-        border: 1px solid #ddd;
-    }
+/* 3. Form Element Styling (home, new, settings) */
+form label {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    margin-top: 20px;
+}
+form label:first-of-type {
+    margin-top: 0;
+}
 
-    th {
-        background-color: #2d8cf0;
-        color: white;
-    }
+form input[type="text"],
+form input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-interactive);
+    border-radius: var(--border-radius-sm);
+    font-size: 1rem;
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    transition: border-color 0.2s ease;
+}
 
-    tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
+form input[type="text"]:focus,
+form input[type="password"]:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+}
 
-    tr:hover {
-        background-color: #f1f1f1;
-    }
+input[type="submit"],
+.button {
+    margin-top: 25px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    background-color: var(--primary-blue);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.2s ease;
+}
+
+input[type="submit"]:hover,
+.button:hover {
+    background-color: var(--primary-blue-hover);
+}
+
+form > a {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+}
+
+/* 4. Passwords Page Specifics (`passwords.html`) */
+
+/* Reset styles for non-card forms */
+.table-container form,
+#passwords-actions form,
+#passwords-upload form {
+    all: unset;
+}
+
+#passwords-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+}
+#passwords-actions input[type="submit"] {
+    margin-top: 0;
+}
+
+/* Table styling */
+.table-container {
+    padding: 10px 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 15px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-divider);
+    vertical-align: middle;
+}
+
+tr:last-child td { border-bottom: none; }
+
+th {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* Table inputs */
+td input[type="text"] {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: var(--text-secondary);
+}
+td input[type="text"]:focus {
+    outline: none;
+    background: var(--bg-input);
+    padding: 5px;
+    border-radius: var(--border-radius-sm);
+    color: var(--text-primary);
+}
+
+/* Table icon buttons */
+td button {
+    all: unset;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+}
+td button:hover {
+    color: var(--text-primary);
+}
+td button i { font-size: 1.1rem; }
+
+/* Upload and bottom links */
+#passwords-upload {
+    padding: 20px;
+    margin: 10px -20px -10px -20px;
+    border-top: 1px solid var(--border-divider);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+#passwords-upload input[type="submit"] {
+    margin-top: 0;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+}
+
+.passwords-footer-links {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+}
+a.link-danger { color: #f04747; }
+a.link-danger:hover { text-decoration: underline; }
 </style>
-
-
 
     {%block head%} {%endblock%}
 </head>
 <body>
-    {% block content %}
-    {% endblock %}
+    <div class="content-wrapper">
+        {% block content %}
+        {% endblock %}
+    </div>
 </body>
 </html>
