@@ -267,7 +267,8 @@ def update(request, id):
         
         content = [_name, _uname, _pass]
 
-        old_content = convertFromString(get_file_from_github(_token, _username, _repo, _path, _mas_password))        
+        check, error, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
+        old_content = convertFromString(old_content)        
         print(old_content)
         del old_content[id]
         old_content.append(content)
@@ -291,7 +292,8 @@ def delete(request, id):
         _path = request.COOKIES.get('_path')
         
 
-        old_content = convertFromString(get_file_from_github(_token, _username, _repo, _path, _mas_password))        
+        check, error, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
+        old_content = convertFromString(old_content)    
         print(old_content)
         del old_content[id]
 
