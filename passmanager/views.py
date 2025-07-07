@@ -109,13 +109,14 @@ def passwords(request):
     try:
         check, error, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
 
+        
+
         if old_content == None:
             del request.session['mas_password']
             return redirect("/")
 
-        print("Content: ", old_content)
         content = convertFromString(old_content)
-        print(content)
+
         context = {'content': content}
         
     except(): 
@@ -138,8 +139,6 @@ def newpassword(request):
         _pass = request.POST.get('password')
         _mas_password = request.session.get('mas_password')
 
-
-        print("MAS PASS:", _mas_password)
         _token = request.COOKIES.get('_token')
         _repo = request.COOKIES.get('_repo')
         _username = request.COOKIES.get('_username')
@@ -156,12 +155,9 @@ def newpassword(request):
 
         content = [_name, _uname, _pass]
 
-        check, error, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
-        old_content = convertFromString(old_content)
-        print(old_content)
-        old_content.append(content)
-        print(old_content)
+        old_content = convertFromString(get_file_from_github(_token, _username, _repo, _path, _mas_password))
 
+        old_content.append(content)
         push_to_github(_token, _username, _repo, _path, _mas_password,convertToString(sortList(old_content)))
     
     return render(request, 'new.html')
@@ -267,12 +263,11 @@ def update(request, id):
         
         content = [_name, _uname, _pass]
 
-        check, error, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
-        old_content = convertFromString(old_content)        
-        print(old_content)
+        old_content = convertFromString(get_file_from_github(_token, _username, _repo, _path, _mas_password))        
+
         del old_content[id]
         old_content.append(content)
-        print(old_content)
+
 
         push_to_github(_token, _username, _repo, _path, _mas_password,convertToString(sortList(old_content)))
         return redirect("../")
@@ -292,9 +287,7 @@ def delete(request, id):
         _path = request.COOKIES.get('_path')
         
 
-        check, error, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
-        old_content = convertFromString(old_content)    
-        print(old_content)
+        old_content = convertFromString(get_file_from_github(_token, _username, _repo, _path, _mas_password))        
         del old_content[id]
 
         push_to_github(_token, _username, _repo, _path, _mas_password,convertToString(sortList(old_content)))
@@ -360,15 +353,15 @@ def push_to_github(token, owner, repo, path, password, new_content, commit_msg="
         result = requests.put(url, headers=headers, data=json.dumps(payload))
 
         if result.status_code in [200, 201]:
-            print("✅ File pushed successfully.")
             return result.json()
         else:
-            print("❌ Error:", result.text)
             return None
         
     except Exception:
-        print(Exception)
         pass
+
+# In passmanager/views.py
+
 
 
 def get_file_from_github(token, owner, repo, path, password, branch="main"):
@@ -380,7 +373,6 @@ def get_file_from_github(token, owner, repo, path, password, branch="main"):
         except ValueError: # Catch the specific "MAC check failed" error
             return (False, "Decryption failed. Please check your Master Password.", None)
         except Exception as e: # Catch any other unexpected decryption errors
-            print(f"An unexpected decryption error occurred: {e}")
             return (False, "An unexpected decryption error occurred.", None)
 
         headers = {
@@ -415,7 +407,6 @@ def get_file_from_github(token, owner, repo, path, password, branch="main"):
     except requests.exceptions.RequestException as e:
         return (False, "A network error occurred. Please check your internet connection.", None)
     except Exception as e:
-        print(f"An unexpected error occurred in get_file_from_github: {e}")
         return (False, "An unexpected error occurred.", None)
 
 def convertToString(lst):
@@ -449,7 +440,6 @@ def enc(data, password):
     # Encode to base64 for storage/transmission
     encrypted_b64 = base64.b64encode(encrypted_blob).decode()
 
-    print("Encrypted (base64):", encrypted_b64)
 
     return encrypted_b64
 
@@ -465,7 +455,6 @@ def denc(data, password):
     cipher = AES.new(key, AES.MODE_GCM, nonce=nonce)
     plaintext = cipher.decrypt_and_verify(ciphertext, tag)
 
-    print("Decrypted:", plaintext.decode())
 
     return plaintext.decode()
 
@@ -474,7 +463,6 @@ def denc(data, password):
 def sortList(lst):
     safe_list = [item for item in lst if isinstance(item, list) and len(item) > 0]
     sort = sorted(safe_list, key=lambda x: str(x[0]).casefold())
-    print("Sorted", sort)
     return sort
 
 
@@ -515,12 +503,8 @@ def upload_csv(request):
             if len(row) >= 1:
                 data.append(row[:3]) 
 
-        print(len(data), data)
-        print("This Function Was Called\n")
-
-
-        check, error, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
-        old_content = convertFromString(old_content)
+        old_content = convertFromString(get_file_from_github(_token, _username, _repo, _path, _mas_password))        
+        
         old_content.extend(data)
 
         push_to_github(_token, _username, _repo, _path, _mas_password,convertToString(sortList(old_content)))
