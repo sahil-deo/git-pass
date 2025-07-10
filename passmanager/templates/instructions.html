@@ -1,0 +1,175 @@
+{% extends 'master.html' %}
+
+{% block title %}Gitpass Setup Instructions{% endblock %}
+
+{% block content %}
+<div class="instructions-container">
+    <h1><i class="fas fa-key" style="margin-right: 10px; color: var(--primary-blue);"></i>Gitpass Setup Instructions</h1>
+    
+    <div class="step">
+        <div class="step-title">
+            <span class="step-number">1</span>
+            Create a GitHub Account
+        </div>
+        <div class="step-content">
+            <p>If you don't already have one, create a free GitHub account at <a href="https://github.com" target="_blank">github.com</a></p>
+            <p>You'll need this account to store your encrypted password data securely.</p>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-title">
+            <span class="step-number">2</span>
+            Obtain a GitHub Personal Access Token
+        </div>
+        <div class="step-content">
+            <p>Generate a Personal Access Token (PAT) to allow Gitpass to access your repository:</p>
+            <p><a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token" target="_blank"><i class="fas fa-external-link-alt"></i> GitHub's Personal Access Token Guide</a></p>
+            <p><strong>Important:</strong> Make sure to grant the token repository access permissions and save it securely - you won't be able to see it again!</p>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-title">
+            <span class="step-number">3</span>
+            Create a Repository
+        </div>
+        <div class="step-content">
+            <p>Create a new repository on GitHub that will store your encrypted password data.</p>
+            <p>You can make it private for extra security, or public if you prefer (the data will be encrypted either way).</p>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-title">
+            <span class="step-number">4</span>
+            Add a File to Your Repository
+        </div>
+        <div class="step-content">
+            <p>Add any file to your repository to initialize it. For example:</p>
+            <p><code>passwords.txt</code>, <code>data.json</code>, or <code>vault.dat</code></p>
+            <p>The file can be empty initially - Gitpass will use this file to store your encrypted password data.</p>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-title">
+            <span class="step-number">5</span>
+            Initialize Your Gitpass Account
+        </div>
+        <div class="step-content">
+            <p>Use the following information to set up your Gitpass account:</p>
+            <p><strong>GitHub Username:</strong> Your GitHub username</p>
+            <p><strong>Personal Access Token:</strong> The PAT you generated in step 2</p>
+            <p><strong>Repository Name:</strong> The name of the repository you created</p>
+            <p><strong>Filename:</strong> The name of the file you added (e.g., <code>passwords.txt</code>)</p>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-title">
+            <span class="step-number">6</span>
+            Set Your Master Password
+        </div>
+        <div class="step-content">
+            <p>Choose a strong master password for your Gitpass account.</p>
+            <p>This password will encrypt all your stored data and can be changed later from the settings page.</p>
+            <p><strong>Remember:</strong> Your master password is not stored anywhere - if you forget it, you'll lose access to your encrypted data!</p>
+        </div>
+    </div>
+
+    <div class="note">
+        <i class="fas fa-info-circle note-icon"></i>
+        <strong>Security Note:</strong> Your passwords are encrypted locally before being stored in your GitHub repository. Neither GitHub nor Gitpass can access your unencrypted password data.
+    </div>
+
+    <div class="back-link">
+        <a href="/" class="button">
+            <i class="fas fa-arrow-left" style="margin-right: 8px;"></i>
+            Back to Login
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<style>
+/* Instructions-specific styles */
+.instructions-container {
+    background-color: var(--bg-card);
+    padding: 30px 40px;
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.step {
+    margin-bottom: 2rem;
+    padding: 20px;
+    background-color: var(--bg-input);
+    border-radius: var(--border-radius-sm);
+    border-left: 4px solid var(--primary-blue);
+}
+
+.step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background-color: var(--primary-blue);
+    color: var(--text-primary);
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-right: 12px;
+}
+
+.step-title {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.step-content {
+    color: var(--text-secondary);
+    margin-left: 40px;
+}
+
+.step-content p {
+    margin-bottom: 10px;
+}
+
+.step-content code {
+    background-color: var(--bg-page);
+    padding: 2px 6px;
+    border-radius: var(--border-radius-sm);
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.note {
+    margin-top: 2rem;
+    padding: 16px;
+    background-color: rgba(88, 101, 242, 0.1);
+    border: 1px solid var(--primary-blue);
+    border-radius: var(--border-radius-sm);
+    color: var(--text-secondary);
+}
+
+.note-icon {
+    color: var(--primary-blue);
+    margin-right: 8px;
+}
+
+.back-link {
+    text-align: center;
+    margin-top: 2rem;
+}
+</style>
+{% endblock %}

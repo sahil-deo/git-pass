@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
+from django.contrib import messages
 
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Cipher import AES
@@ -155,8 +156,13 @@ def newpassword(request):
 
         content = [_name, _uname, _pass]
 
-        old_content = convertFromString(get_file_from_github(_token, _username, _repo, _path, _mas_password))
+        check, error, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
 
+        if old_content == None:
+            del request.session['mas_password']
+            return redirect("/")
+        
+        old_content = convertFromString(old_content)
         old_content.append(content)
         push_to_github(_token, _username, _repo, _path, _mas_password,convertToString(sortList(old_content)))
     
@@ -229,7 +235,50 @@ def settings(request):
     template = loader.get_template('settings.html')
     return HttpResponse(template.render(context, request))
 
+def instructions(request):
+    return render(request, "instructions.html")
+def reset_master(request):
+    if checkData(request) == False:
+        return redirect("/")
+    
+    if request.method == 'POST':
 
+        current_password = request.POST.get("old_password") 
+        new_password = request.POST.get("new_password")
+        confirm_password = request.POST.get("confirm_password")
+        
+        if current_password == request.session.get('mas_password'):
+
+            if new_password == confirm_password:
+                mas_password = request.session.get('mas_password')
+                token = request.COOKIES.get('_token')
+                repo = request.COOKIES.get('_repo')
+                username = request.COOKIES.get('_username')
+                path = request.COOKIES.get('_path')
+                
+                check, error, content = get_file_from_github(token, username, repo, path, mas_password)
+                
+                if check:  
+                    decrypted_token = denc(request.COOKIES.get('_token'), mas_password)
+                    
+                    request.session['mas_password'] = new_password
+                    
+                    response = HttpResponse(render(request, "resetmaster.html"))
+                    response.set_cookie('_token', enc(decrypted_token, new_password))
+                    
+                    push_to_github(enc(decrypted_token, new_password), username, repo, path, new_password, content)
+                    
+                    messages.success(request, "Master password updated successfully!")
+                    return response
+                else:
+                    messages.error(request, f"Error accessing GitHub data: {error}")
+            else:
+                messages.error(request, "New passwords do not match!")
+        else:
+            pass
+            messages.error(request, "Current password is incorrect!")
+    
+    return render(request, "resetmaster.html")
 
 def update(request, id):
 
@@ -263,8 +312,8 @@ def update(request, id):
         
         content = [_name, _uname, _pass]
 
-        old_content = convertFromString(get_file_from_github(_token, _username, _repo, _path, _mas_password))        
-
+        a, b, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)        
+        old_content = convertFromString(old_content)
         del old_content[id]
         old_content.append(content)
 
@@ -287,7 +336,8 @@ def delete(request, id):
         _path = request.COOKIES.get('_path')
         
 
-        old_content = convertFromString(get_file_from_github(_token, _username, _repo, _path, _mas_password))        
+        a, b, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)        
+        old_content = convertFromString(old_content)
         del old_content[id]
 
         push_to_github(_token, _username, _repo, _path, _mas_password,convertToString(sortList(old_content)))

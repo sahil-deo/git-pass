@@ -11,5 +11,9 @@ urlpatterns = [
     path('settings/', views.settings, name="Settings"),
     path('passwords/upload/', views.upload_csv, name="Upload"),
     path('logout/', views.logout, name="Logout"),
+    path('instructions/', views.instructions, name = "Instructions"),
+    path('settings/reset-master/', views.reset_master, name="Reset-Master"),
+
+         
 
 ]

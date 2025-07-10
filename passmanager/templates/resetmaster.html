@@ -1,0 +1,80 @@
+{% extends 'master.html' %}
+
+{% block title %}Reset Master Password{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <h1><i class="fas fa-key" style="margin-right: 10px; color: var(--primary-blue);"></i>Reset Master Password</h1>
+    
+    <label for="old_password">Current Master Password</label>
+    <input type="password" id="old_password" name="old_password" required>
+    
+    <label for="new_password">New Master Password</label>
+    <input type="password" id="new_password" name="new_password" required>
+    
+    <label for="confirm_password">Confirm New Master Password</label>
+    <input type="password" id="confirm_password" name="confirm_password" required>
+    
+    <input type="submit" value="Save New Password">
+    
+    <a href="../">Cancel</a>
+</form>
+
+<div class="warning-container">
+    <div class="warning-box">
+        <i class="fas fa-exclamation-triangle warning-icon"></i>
+        <div class="warning-content">
+            <h3>Important Security Notice</h3>
+            <p>Changing your master password will re-encrypt all your stored passwords with the new password. This process is irreversible.</p>
+            <p><strong>Make sure you remember your new master password</strong> - if you forget it, you will lose access to all your encrypted data permanently.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<style>
+.warning-container {
+    margin-top: 2rem;
+}
+
+.warning-box {
+    background-color: rgba(244, 71, 71, 0.1);
+    border: 1px solid #f04747;
+    border-radius: var(--border-radius-sm);
+    padding: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.warning-icon {
+    color: #f04747;
+    font-size: 1.5rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.warning-content h3 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.warning-content p {
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.warning-content p:last-child {
+    margin-bottom: 0;
+}
+
+.warning-content strong {
+    color: #f04747;
+}
+</style>
+{% endblock %}
