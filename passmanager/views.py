@@ -553,8 +553,8 @@ def upload_csv(request):
             if len(row) >= 1:
                 data.append(row[:3]) 
 
-        old_content = convertFromString(get_file_from_github(_token, _username, _repo, _path, _mas_password))        
-        
+        check, error, old_content = (get_file_from_github(_token, _username, _repo, _path, _mas_password))        
+        old_content = convertFromString(old_content)
         old_content.extend(data)
 
         push_to_github(_token, _username, _repo, _path, _mas_password,convertToString(sortList(old_content)))
