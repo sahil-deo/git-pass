@@ -13,7 +13,7 @@ urlpatterns = [
     path('logout/', views.logout, name="Logout"),
     path('instructions/', views.instructions, name = "Instructions"),
     path('settings/reset-master/', views.reset_master, name="Reset-Master"),
-
+    path('passwords/backup/', views.create_backup, name="Backup"),
          
 
 ]

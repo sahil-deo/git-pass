@@ -233,6 +233,64 @@ td button i { font-size: 1.1rem; }
     display: flex;
     justify-content: space-between;
 }
+/* Table icon buttons */
+td button {
+    all: unset;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+}
+td button:hover {
+    color: var(--text-primary);
+}
+td button i { font-size: 1.1rem; }
+
+/* Password visibility toggle */
+.password-cell {
+    position: relative;
+}
+
+.password-input {
+    width: 100%;
+    padding-right: 35px !important;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color 0.2s ease;
+    font-size: 0.9rem;
+    z-index: 10;
+}
+
+.password-toggle:hover {
+    color: var(--text-primary);
+}
+
+/* Hide password by default */
+.password-hidden {
+    -webkit-text-security: disc;
+    text-security: disc;
+}
+
+/* Fallback for browsers that don't support text-security */
+.password-hidden:not(:focus) {
+    font-family: 'Courier New', monospace;
+    color: transparent;
+    text-shadow: 0 0 0 var(--text-secondary);
+    letter-spacing: 0.2em;
+}
+
+.password-hidden:focus {
+    -webkit-text-security: none;
+    text-security: none;
+    color: var(--text-primary);
+    text-shadow: none;
+}
 a.link-danger { color: #f04747; }
 a.link-danger:hover { text-decoration: underline; }
 </style>

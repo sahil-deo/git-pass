@@ -11,7 +11,7 @@ import base64
 import json
 import requests
 import csv
-
+from datetime import datetime
 # Create your views here.
 
 def checkData(request):
@@ -237,6 +237,10 @@ def settings(request):
 
 def instructions(request):
     return render(request, "instructions.html")
+
+
+
+
 def reset_master(request):
     if checkData(request) == False:
         return redirect("/")
@@ -263,7 +267,7 @@ def reset_master(request):
                     
                     request.session['mas_password'] = new_password
                     
-                    response = HttpResponse(render(request, "resetmaster.html"))
+                    response = HttpResponseRedirect("../")
                     response.set_cookie('_token', enc(decrypted_token, new_password))
                     
                     push_to_github(enc(decrypted_token, new_password), username, repo, path, new_password, content)
@@ -370,6 +374,36 @@ def logout(request):
     del request.session['mas_password']
     return redirect("..")
 
+def create_backup(request):
+    if checkData(request) == False:
+        return redirect('/')
+    
+    print("Here")
+
+    if request.method == 'POST':
+        print("Here2")
+        _mas_password = request.session.get('mas_password')
+        _token = request.COOKIES.get('_token')
+        _repo = request.COOKIES.get('_repo')
+        _username = request.COOKIES.get('_username')
+        _path = request.COOKIES.get('_path')
+
+
+        now = datetime.now()
+        _timedate = f"{now.day}-{now.month}-{now.year}"
+
+        _backfilename = f"{_timedate}-{_path}.backup"
+
+        check, error, _content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
+
+        push_to_github(_token, _username, _repo, _backfilename, _mas_password, _content, "Backup for Passwords")
+
+    
+    return redirect("../")
+
+    pass
+
+
 
 def push_to_github(token, owner, repo, path, password, new_content, commit_msg="Update via token", branch="main"):
 
@@ -409,10 +443,6 @@ def push_to_github(token, owner, repo, path, password, new_content, commit_msg="
         
     except Exception:
         pass
-
-# In passmanager/views.py
-
-
 
 def get_file_from_github(token, owner, repo, path, password, branch="main"):
 
