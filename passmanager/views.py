@@ -111,12 +111,10 @@ def passwords(request):
     try:
         check, error, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
 
-        
 
-        if old_content == None:
-            #del request.session['mas_password']
-            #return redirect("/")
-            pass
+        if not check:
+            del request.session['mas_password']
+            return redirect("/")
 
         content = [[]]
         if old_content != None: 
@@ -383,10 +381,8 @@ def create_backup(request):
     if checkData(request) == False:
         return redirect('/')
     
-    print("Here")
 
     if request.method == 'POST':
-        print("Here2")
         _mas_password = request.session.get('mas_password')
         _token = request.COOKIES.get('_token')
         _repo = request.COOKIES.get('_repo')
@@ -475,7 +471,10 @@ def get_file_from_github(token, owner, repo, path, password, branch="main"):
             
             # Step 3: Decrypt the file content itself. This could also fail.
             try:
-                decrypted_content = denc(encrypted_content, password)
+                decrypted_content = ""
+                if(encrypted_content != "\n"):
+                    print("size:", len(encrypted_content))
+                    decrypted_content = denc(encrypted_content, password)
                 return (True, "File fetched successfully.", decrypted_content)
             except ValueError:
                 return (False, "Could not decrypt the file content. The Master Password may be incorrect for this file.", None)
@@ -529,6 +528,8 @@ def enc(data, password):
     return encrypted_b64
 
 def denc(data, password):
+
+    
     # Decode from base64 to binary
     raw = base64.b64decode(data)  # chatGPT: decode before splitting
 
