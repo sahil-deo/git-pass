@@ -101,6 +101,7 @@ def passwords(request):
         return redirect("/")
         
 
+
     _token = request.COOKIES.get('_token')
     _repo = request.COOKIES.get('_repo')
     _username = request.COOKIES.get('_username')
@@ -113,11 +114,15 @@ def passwords(request):
         
 
         if old_content == None:
-            del request.session['mas_password']
-            return redirect("/")
+            #del request.session['mas_password']
+            #return redirect("/")
+            pass
 
-        content = convertFromString(old_content)
+        content = [[]]
+        if old_content != None: 
+            content = convertFromString(old_content)
 
+        
         context = {'content': content}
         
     except(): 
@@ -159,10 +164,10 @@ def newpassword(request):
         check, error, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
 
         if old_content == None:
-            del request.session['mas_password']
-            return redirect("/")
-        
-        old_content = convertFromString(old_content)
+            old_content = [[]]
+
+        elif old_content != None:
+            old_content = convertFromString(old_content)
         old_content.append(content)
         push_to_github(_token, _username, _repo, _path, _mas_password,convertToString(sortList(old_content)))
     
