@@ -13,6 +13,107 @@ import requests
 import csv
 from datetime import datetime
 # Create your views here.
+def notes(request):
+    # Render the notes page, separate from passwords
+    # Logic to load notes from the notes file (path from cookies/session)
+    if checkData(request) == False:
+        return redirect("/")
+
+    _token = request.COOKIES.get('_token')
+    _repo = request.COOKIES.get('_repo')
+    _username = request.COOKIES.get('_username')
+    notes_path = request.COOKIES.get('_notes_path') or request.session.get('notes_path')
+    _mas_password = request.session.get('mas_password')
+
+    notes = []
+    if _token and _repo and _username and notes_path and _mas_password:
+        try:
+            check, error, old_content = get_file_from_github(_token, _username, _repo, notes_path, _mas_password)
+            if check and old_content:
+                # decode JSON string if needed
+                if isinstance(old_content, str):
+                    notes = convertFromString(old_content)
+                else:
+                    notes = old_content
+        except Exception:
+            notes = []
+    return render(request, 'notes.html', {'notes': notes})
+
+def newnote(request):
+    if checkData(request) == False:
+        return redirect("/")
+
+    _token = request.COOKIES.get('_token')
+    _repo = request.COOKIES.get('_repo')
+    _username = request.COOKIES.get('_username')
+    notes_path = request.COOKIES.get('_notes_path') or request.session.get('notes_path')
+    _mas_password = request.session.get('mas_password')
+
+    if request.method == 'POST':
+        title = request.POST.get('title', '')
+        content = request.POST.get('content', '')
+        note = {'title': title, 'content': content}
+        notes = []
+        check, error, old_content = get_file_from_github(_token, _username, _repo, notes_path, _mas_password)
+        if old_content:
+            if isinstance(old_content, str):
+                notes = convertFromString(old_content)
+            else:
+                notes = old_content
+        notes.append(note)
+        push_to_github(_token, _username, _repo, notes_path, _mas_password, json.dumps(notes))
+        return redirect('/notes/')
+    return render(request, 'newnote.html')
+
+def update_note(request, id):
+    if checkData(request) == False:
+        return redirect("/")
+
+    _token = request.COOKIES.get('_token')
+    _repo = request.COOKIES.get('_repo')
+    _username = request.COOKIES.get('_username')
+    notes_path = request.COOKIES.get('_notes_path') or request.session.get('notes_path')
+    _mas_password = request.session.get('mas_password')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        check, error, old_content = get_file_from_github(_token, _username, _repo, notes_path, _mas_password)
+        notes = []
+        if old_content:
+            if isinstance(old_content, str):
+                notes = convertFromString(old_content)
+            else:
+                notes = old_content
+        if action == 'Edit':
+            title = request.POST.get('title', '')
+            content = request.POST.get('content', '')
+            if 0 <= id < len(notes):
+                notes[id] = {'title': title, 'content': content}
+                push_to_github(_token, _username, _repo, notes_path, _mas_password, json.dumps(notes))
+        elif action == 'Delete':
+            if 0 <= id < len(notes):
+                notes.pop(id)
+                push_to_github(_token, _username, _repo, notes_path, _mas_password, json.dumps(notes))
+        return redirect('/notes/')
+    return redirect('/notes/')
+
+def delete_note(request, id):
+    if checkData(request) == False:
+        return redirect("/")
+
+    _token = request.COOKIES.get('_token')
+    _repo = request.COOKIES.get('_repo')
+    _username = request.COOKIES.get('_username')
+    notes_path = request.COOKIES.get('_notes_path') or request.session.get('notes_path')
+    _mas_password = request.session.get('mas_password')
+
+    check, error, notes = get_file_from_github(_token, _username, _repo, notes_path, _mas_password)
+    if not notes:
+        notes = []
+    if 0 <= id < len(notes):
+        notes.pop(id)
+        push_to_github(_token, _username, _repo, notes_path, _mas_password, notes)
+    return redirect('/notes/')
 
 def checkData(request):
     _token = request.COOKIES.get('_token')
@@ -33,44 +134,42 @@ def home(request):
     c_repo = request.COOKIES.get('_repo')
     c_username = request.COOKIES.get('_username')
     c_path = request.COOKIES.get('_path')
+    c_notes_path = request.COOKIES.get('_notes_path') or request.session.get('notes_path')
 
+    c_mas_password = request.session.get('mas_password')
 
-    c_mas_passsword = request.session.get('mas_password')
 
 
     if request.method == 'POST':
-        
         _token = request.POST.get('token')
         _repo = request.POST.get('repo')
         _username = request.POST.get('username')
         _path = request.POST.get('path')
+        _notes_path = request.POST.get('notes_path')
         _action = request.POST.get('action')
         _mas_password = request.POST.get('mas_password')
         request.session['mas_password'] = _mas_password
+        request.session['notes_path'] = _notes_path
 
         redirect_url = "/passwords/"
-        
         response = HttpResponseRedirect(redirect_url)
 
         if _token != "Token is Saved, Input to Change Token" and _token != c_token:
             response.set_cookie('_token', enc(_token, _mas_password))
-       
         if c_repo != _repo:
             response.set_cookie('_repo', _repo)
-       
         if c_path != _path:
             response.set_cookie('_path', _path)
-        
         if c_username != _username:
             response.set_cookie('_username', _username)
-        
-
+        if _notes_path:
+            response.set_cookie('_notes_path', _notes_path)
         return response
 
-    if((c_token != None or c_token =="Token is Saved, Input to Change Token") and c_repo != None and c_username != None and c_path != None and c_mas_passsword != None ):
+    if((c_token != None or c_token =="Token is Saved, Input to Change Token") and c_repo != None and c_username != None and c_path != None and c_mas_password != None ):
         return HttpResponseRedirect('/passwords/')
 
-    t, r, u, p, m = "", "", "", "", ""
+    t, r, u, p, m, n = "", "", "", "", "", ""
     if c_token != None:
         t = "Token is Saved, Input to Change Token"
     
@@ -83,12 +182,15 @@ def home(request):
     if c_path != None:
         p = c_path
     
-    
+    if c_notes_path != None:
+        n = c_notes_path
+
     context = {
         'repo': r,
         'token': t,
         'username': u,
         'path': p,
+        'notes_path': n,
  
     }
 
@@ -181,39 +283,37 @@ def settings(request):
     c_repo = request.COOKIES.get('_repo')
     c_username = request.COOKIES.get('_username')
     c_path = request.COOKIES.get('_path')
-    
+    c_notes_path = request.COOKIES.get('_notes_path') or request.session.get('notes_path')
     if request.method == 'POST':
         _token = request.POST.get('token')
         _repo = request.POST.get('repo')
         _username = request.POST.get('username')
         _path = request.POST.get('path')
+        _notes_path = request.POST.get('notes_path')
         _action = request.POST.get('action')
         _mas_password = request.POST.get('mas_password')
+        request.session['notes_path'] = _notes_path
 
         redirect_url = "/settings/"
-        
         response = HttpResponseRedirect(redirect_url)
 
         if _token != "Token is Saved, Input to Change Token" and _token != c_token:
             response.set_cookie('_token', enc(_token, _mas_password))
-       
         if c_repo != _repo:
             response.set_cookie('_repo', _repo)
-       
         if c_path != _path:
             response.set_cookie('_path', _path)
-        
         if c_username != _username:
             response.set_cookie('_username', _username)
-        
-
+        if _notes_path:
+            response.set_cookie('_notes_path', _notes_path)
         return response
 
 
         pass
     
 
-    t, r, u, p, m = "", "", "", "", ""
+    t, r, u, p, m, n = "", "", "", "", "", ""
     if c_token != None:
         t = "Token is Saved, Input to Change Token"
     
@@ -225,14 +325,16 @@ def settings(request):
     
     if c_path != None:
         p = c_path
-    
-    
+
+    if c_notes_path != None:
+        n = c_notes_path
+
     context = {
         'repo': r,
         'token': t,
         'username': u,
         'path': p,
- 
+        'notes_path': n,
     }
 
     template = loader.get_template('settings.html')
@@ -382,27 +484,30 @@ def create_backup(request):
         return redirect('/')
     
 
+
     if request.method == 'POST':
         _mas_password = request.session.get('mas_password')
         _token = request.COOKIES.get('_token')
         _repo = request.COOKIES.get('_repo')
         _username = request.COOKIES.get('_username')
         _path = request.COOKIES.get('_path')
-
+        notes_path = request.COOKIES.get('_notes_path') or request.session.get('notes_path')
 
         now = datetime.now()
         _timedate = f"{now.day}-{now.month}-{now.year}"
 
-        _backfilename = f"{_timedate}-{_path}.backup"
+        # Backup passwords file
+        _backfilename_pw = f"{_timedate}-{_path}.backup"
+        check_pw, error_pw, _content_pw = get_file_from_github(_token, _username, _repo, _path, _mas_password)
+        push_to_github(_token, _username, _repo, _backfilename_pw, _mas_password, _content_pw, "Backup for Passwords")
 
-        check, error, _content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
+        # Backup notes file if present
+        if notes_path:
+            _backfilename_notes = f"{_timedate}-{notes_path}.backup"
+            check_notes, error_notes, _content_notes = get_file_from_github(_token, _username, _repo, notes_path, _mas_password)
+            push_to_github(_token, _username, _repo, _backfilename_notes, _mas_password, _content_notes, "Backup for Notes")
 
-        push_to_github(_token, _username, _repo, _backfilename, _mas_password, _content, "Backup for Passwords")
-
-    
     return redirect("../")
-
-    pass
 
 
 

@@ -14,6 +14,10 @@ urlpatterns = [
     path('instructions/', views.instructions, name = "Instructions"),
     path('settings/reset-master/', views.reset_master, name="Reset-Master"),
     path('passwords/backup/', views.create_backup, name="Backup"),
-         
 
+    # Notes URLs
+    path('notes/', views.notes, name="Notes"),
+    path('notes/new/', views.newnote, name="New-Note"),
+    path('notes/update/<int:id>', views.update_note, name="Edit-Note"),
+    path('notes/delete/<int:id>', views.delete_note, name="Delete-Note"),
 ]

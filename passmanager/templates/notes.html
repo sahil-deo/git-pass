@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Notes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #5865f2;
+            --primary-blue-hover: #4752c4;
+            --bg-page: #202225;
+            --bg-card: #2f3136;
+            --bg-input: #202225;
+            --text-primary: #ffffff;
+            --text-secondary: #b9bbbe;
+            --text-muted: #8e9297;
+            --border-interactive: #040405;
+            --border-divider: rgba(255, 255, 255, 0.06);
+            --border-radius-lg: 8px;
+            --border-radius-sm: 3px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .content-wrapper {
+            width: 100%;
+            max-width: 900px;
+        }
+        .table-container {
+            background-color: var(--bg-card);
+            padding: 30px 40px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            text-align: center;
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+        }
+        a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 500;
+            transition: text-decoration 0.2s ease;
+        }
+        a:hover { text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td {
+            padding: 15px 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-divider);
+            vertical-align: middle;
+        }
+        th {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        td input[type="text"], td textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            resize: none;
+        }
+        td textarea:focus, td input[type="text"]:focus {
+            outline: none;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border-radius: var(--border-radius-sm);
+            padding: 5px;
+        }
+        td textarea {
+            min-height: 60px;
+            font-family: inherit;
+        }
+        td button {
+            all: unset;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color 0.2s ease;
+        }
+        td button:hover { color: var(--text-primary); }
+        td button i { font-size: 1.1rem; }
+        .icon-group {
+            display: flex;
+            gap: 20px;
+            justify-content: flex-center;
+        }
+        input[type="submit"], .button {
+            margin-top: 0;
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            background-color: var(--primary-blue);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.2s ease;
+        }
+        input[type="submit"]:hover, .button:hover {
+            background-color: var(--primary-blue-hover);
+        }
+        #notes-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+        #notes-actions input[type="submit"] { margin-top: 0; }
+        @media screen and (max-width: 600px) {
+            body { padding: 20px 10px; align-items: stretch; }
+            .content-wrapper { max-width: 100%; padding: 0; }
+            .table-container { padding: 10px; overflow-x: auto; }
+            #notes-actions { flex-direction: column; gap: 10px; }
+            #notes-actions form input[type="submit"] { width: 100%; font-size: 1rem; }
+            table,thead,tbody,tr,th,td { display: block; width: 100%; }
+            tr { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-divider); padding-bottom: 1rem; }
+            th { display: none; }
+            td { padding: 8px 0; }
+            td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--text-muted);
+                display: block;
+                margin-bottom: 4px;
+                font-size: 0.55rem;
+                text-transform: uppercase;
+            }
+            td.action-icons {
+                text-align: left;
+                padding-left: 0;
+                gap: 12px !important;
+                justify-content: flex-start;
+            }
+            .icon-group {
+                display: flex;
+                gap: 25px;
+                justify-content: space-between;
+                padding: 10px 10px 0px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <h1>All Notes</h1>
+        <hr>
+        <br>
+        <div id="notes-actions">
+            <form action="/notes/new/" method="get" style="display:inline;"><input type="submit" value="New Note"></form>
+            <form action="/passwords/" method="get" style="display:inline;"><input type="submit" value="Back to Passwords"></form>
+            <form action="/settings/" method="get" style="display:inline;"><input type="submit" value="Settings"></form>
+        </div>
+        <center>
+            <a href="/logout">Logout</a>
+            <br><br>
+        </center>
+        <div class="table-container">
+            <table>
+                <tr>
+                    <th>Title</th>
+                    <th>Note</th>
+                    <th colspan="2">Actions</th>
+                </tr>
+                {% for note in notes %}
+                <tr>
+                    <form action="/notes/update/{{forloop.counter0}}" method="post">
+                        {% csrf_token %}
+                        <td data-label="Title">
+                            <input type="text" name="title" value="{{note.title}}">
+                        </td>
+                        <td data-label="Note">
+                            <textarea name="content" rows="3">{{note.content}}</textarea>
+                        </td>
+                        <td class="action-icons" data-label="Actions">
+                            <div class="icon-group">
+                                <button type="submit" name="action" value="Edit" title="Save Changes">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                </button>
+                                <button type="submit" name="action" value="Delete" title="Delete Note">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </form>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="text-align:center;color:var(--text-muted);">No notes found.</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</body>
+</html>
