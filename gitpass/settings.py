@@ -73,7 +73,8 @@ TEMPLATES = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://git-pass.onrender.com"
+    "https://git-pass.onrender.com",
+    "https://gitpass-618u.onrender.com"
 ]
 
 WSGI_APPLICATION = 'gitpass.wsgi.application'
