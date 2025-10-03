@@ -89,6 +89,8 @@
         td textarea {
             min-height: 60px;
             font-family: inherit;
+            overflow-y: hidden;
+            resize: none;
         }
         td button {
             all: unset;
@@ -159,6 +161,21 @@
             }
         }
     </style>
+    <script>
+    // Auto-resize all textareas to fit content
+    function autoResizeTextarea(el) {
+        el.style.height = 'auto';
+        el.style.height = (el.scrollHeight) + 'px';
+    }
+    window.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('textarea').forEach(function(textarea) {
+            autoResizeTextarea(textarea);
+            textarea.addEventListener('input', function() {
+                autoResizeTextarea(this);
+            });
+        });
+    });
+    </script>
 </head>
 <body>
     <div class="content-wrapper">
