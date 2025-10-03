@@ -1,7 +1,75 @@
 {% extends "master.html" %}
 {% block title %}New Note{% endblock %}
 {% block content %}
-<h1>New Note</h1>
+<style>
+    body {
+        background-color: #202225;
+        color: #b9bbbe;
+        font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    form {
+        background: #2f3136;
+        padding: 32px 40px;
+        border-radius: 8px;
+        max-width: 500px;
+        margin: 40px auto;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.24);
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+    label {
+        color: #8e9297;
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+    input[type="text"] {
+        background: #202225;
+        color: #fff;
+        border: none;
+        border-radius: 3px;
+        padding: 10px;
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+    textarea {
+        background: #202225;
+        color: #fff;
+        border: none;
+        border-radius: 3px;
+        padding: 10px;
+        font-size: 1rem;
+        min-height: 60px;
+        font-family: inherit;
+        resize: none;
+        overflow-y: hidden;
+        margin-bottom: 8px;
+    }
+    input[type="submit"] {
+        background: #5865f2;
+        color: #fff;
+        border: none;
+        border-radius: 3px;
+        padding: 12px 20px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    input[type="submit"]:hover {
+        background: #4752c4;
+    }
+    a {
+        color: #5865f2;
+        text-decoration: none;
+        font-weight: 500;
+        margin-top: 8px;
+        text-align: center;
+    }
+    a:hover { text-decoration: underline; }
+</style>
+<h1 style="text-align:center;color:#fff;">New Note</h1>
 <hr>
 <br>
 <form action="" method="post">
@@ -9,8 +77,24 @@
     <label for="title">Title</label>
     <input type="text" name="title" id="title">
     <label for="content">Note</label>
-    <textarea name="content" id="content" rows="5" style="width:100%;"></textarea>
+    <textarea name="content" id="content" rows="5"></textarea>
     <input type="submit" value="Save Note">
     <a href="/notes/">Return</a>
 </form>
+<script>
+// Auto-resize textarea to fit content
+function autoResizeTextarea(el) {
+    el.style.height = 'auto';
+    el.style.height = (el.scrollHeight) + 'px';
+}
+window.addEventListener('DOMContentLoaded', function() {
+    var textarea = document.getElementById('content');
+    if (textarea) {
+        autoResizeTextarea(textarea);
+        textarea.addEventListener('input', function() {
+            autoResizeTextarea(this);
+        });
+    }
+});
+</script>
 {% endblock %}
