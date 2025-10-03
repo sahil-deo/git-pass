@@ -12,37 +12,28 @@
             --bg-page: #202225;
             --bg-card: #2f3136;
             --bg-input: #202225;
-            --text-primary: #ffffff;
+            --text-primary: #fff;
             --text-secondary: #b9bbbe;
             --text-muted: #8e9297;
-            --border-interactive: #040405;
-            --border-divider: rgba(255, 255, 255, 0.06);
+            --border-divider: rgba(255,255,255,0.06);
             --border-radius-lg: 8px;
             --border-radius-sm: 3px;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        /* Base Reset & Typography */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: var(--bg-page);
+            background: var(--bg-page);
             color: var(--text-secondary);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            min-height: 100vh;
             padding: 40px 20px;
         }
         .content-wrapper {
             width: 100%;
             max-width: 900px;
-        }
-        .table-container {
-            background-color: var(--bg-card);
-            padding: 30px 40px;
-            border-radius: var(--border-radius-lg);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
-            margin-bottom: 2rem;
-            display: flex;
-            flex-direction: column;
         }
         h1 {
             font-size: 1.75rem;
@@ -51,32 +42,159 @@
             color: var(--text-primary);
             margin-bottom: 2rem;
         }
-        a {
+        a, a:visited, a:active {
             color: var(--primary-blue);
             text-decoration: none;
             font-weight: 500;
-            transition: text-decoration 0.2s ease;
+            transition: text-decoration 0.2s;
         }
         a:hover { text-decoration: underline; }
-        table { width: 100%; border-collapse: collapse; }
+
+        /* General Buttons & Inputs */
+        input[type="submit"], .button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            background: var(--primary-blue);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.2s;
+        }
+        input[type="submit"]:hover, .button:hover {
+            background: var(--primary-blue-hover);
+        }
+        
+        /* Label Pill Input Styling (For Filtering/Editing) */
+        .label-pill-input {
+            background: #232428;
+            color: #6a6d78;
+            border: 1.5px solid #232428;
+            border-radius: 999px;
+            padding: 3px 14px;
+            margin-top: 14px;
+            font-size: 0.85rem;
+            outline: none;
+            transition: box-shadow 0.2s;
+            min-width: 40px;
+            max-width: 220px;
+            width: auto;
+            text-align: left;
+            margin: 4px 0 0 0;
+            display: inline-block;
+            opacity: 0.7;
+            box-shadow: none;
+        }
+        .label-pill-input:focus {
+            box-shadow: 0 0 0 1px var(--primary-blue);
+            background: #232428;
+            color: var(--text-secondary);
+            opacity: 1;
+        }
+
+        /* Filter Bar */
+        .label-filter-bar-center {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.2rem;
+        }
+        .label-filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 1.2rem;
+            background: #232428;
+            border-radius: 999px;
+            padding: 6px 16px;
+            width: fit-content;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .label-filter-bar label {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin: 0 4px 0 0;
+        }
+        /* Specific button/submit/link styles for the filter bar (Clear button fix) */
+        .label-filter-bar .button, 
+        .label-filter-bar input[type="submit"], 
+        .label-filter-bar a.button {
+            background: #444; /* Dark background for filter/clear buttons */
+            text-decoration: none !important; /* Ensure the Clear link doesn't have an underline */
+            padding: 6px 16px;
+            font-size: 0.95rem;
+            border-radius: 999px;
+            margin: 0 0 0 4px;
+            color: var(--text-primary); /* Ensure link text color is white */
+        }
+        .label-filter-bar a.button:hover {
+            background: #555; /* Slight hover effect for consistency */
+        }
+
+
+        /* Table Structure & Styling */
+        .table-container {
+            background: var(--bg-card);
+            padding: 30px 40px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.24);
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
         th, td {
             padding: 15px 10px;
             text-align: left;
-            border-bottom: 1px solid var(--border-divider);
-            vertical-align: middle;
+            vertical-align: top;
         }
         th {
             color: var(--text-muted);
             font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
+            border-bottom: 1px solid var(--border-divider);
         }
+        
+        /* Row and Form fixes to align cells properly */
+        tr form {
+            display: contents; 
+        }
+        
+        tr {
+            border-bottom: none; 
+            display: table-row; 
+        }
+        
+        /* Re-introduce the divider line using the row's bottom border */
+        tr:not(:last-child) {
+            border-bottom: 1px solid var(--border-divider);
+        }
+        
+        tr td {
+            border-bottom: none; 
+            padding-top: 15px; 
+            padding-bottom: 15px;
+        }
+        
+        /* Input/Textarea general styles */
         td input[type="text"], td textarea {
             width: 100%;
             background: transparent;
             border: none;
             color: var(--text-secondary);
             font-size: 1rem;
+            resize: none;
+        }
+        td textarea {
+            min-height: 60px;
+            font-family: inherit;
+            overflow-y: hidden;
             resize: none;
         }
         td textarea:focus, td input[type="text"]:focus {
@@ -86,17 +204,54 @@
             border-radius: var(--border-radius-sm);
             padding: 5px;
         }
-        td textarea {
-            min-height: 60px;
-            font-family: inherit;
-            overflow-y: hidden;
-            resize: none;
+        
+        /* Action Icons: Centered vertically */
+        .action-icons {
+            vertical-align: middle !important;
         }
+
+        /* --- Custom Styles for Title/Label Refinement --- */
+        .note-title-cell {
+            padding-left: 10px; 
+            padding-right: 20px !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* Pushes the label to the bottom */
+            height: 100%; 
+        }
+        
+        .note-title-cell input[name="title"] {
+            margin-bottom: 10px; 
+            padding-bottom: 5px;
+            flex-grow: 1;
+            height: auto;
+        }
+
+        .note-title-cell input[name="label"] {
+            font-size: 0.75rem; 
+            font-weight: 600;
+            padding: 2px 10px;
+            margin-top: 5px; 
+            width: fit-content; 
+            color: var(--text-muted);
+            border: 1px solid var(--border-divider);
+            border-radius: 999px; 
+            background: rgba(255, 255, 255, 0.05);
+            opacity: 1;
+            flex-shrink: 0;
+        }
+        .note-title-cell input[name="label"]:focus {
+            box-shadow: none; 
+            color: var(--text-primary);
+        }
+        /* ----------------------------------------------- */
+
+        /* Action Icons Group */
         td button {
             all: unset;
             cursor: pointer;
             color: var(--text-secondary);
-            transition: color 0.2s ease;
+            transition: color 0.2s;
         }
         td button:hover { color: var(--text-primary); }
         td button i { font-size: 1.1rem; }
@@ -105,22 +260,8 @@
             gap: 20px;
             justify-content: flex-center;
         }
-        input[type="submit"], .button {
-            margin-top: 0;
-            padding: 12px 20px;
-            border: none;
-            border-radius: var(--border-radius-sm);
-            background-color: var(--primary-blue);
-            color: var(--text-primary);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-            transition: background-color 0.2s ease;
-        }
-        input[type="submit"]:hover, .button:hover {
-            background-color: var(--primary-blue-hover);
-        }
+
+        /* Actions Bar */
         #notes-actions {
             display: flex;
             gap: 1rem;
@@ -128,6 +269,8 @@
             justify-content: center;
         }
         #notes-actions input[type="submit"] { margin-top: 0; }
+
+        /* Mobile Styles */
         @media screen and (max-width: 600px) {
             body { padding: 20px 10px; align-items: stretch; }
             .content-wrapper { max-width: 100%; padding: 0; }
@@ -135,7 +278,29 @@
             #notes-actions { flex-direction: column; gap: 10px; }
             #notes-actions form input[type="submit"] { width: 100%; font-size: 1rem; }
             table,thead,tbody,tr,th,td { display: block; width: 100%; }
-            tr { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-divider); padding-bottom: 1rem; }
+            
+            /* Mobile row styling */
+            tr { 
+                margin-bottom: 1.5rem; 
+                border-bottom: none; 
+                padding-bottom: 1rem;
+                border-left: none;
+                padding-left: 0;
+                padding-top: 10px;
+                border-top: 1px solid var(--border-divider); 
+            }
+            tr:first-of-type {
+                border-top: none; 
+            }
+
+            tr:not(:last-child) {
+                border-bottom: 1px solid var(--border-divider);
+            }
+            
+            tr form {
+                display: block;
+            }
+            
             th { display: none; }
             td { padding: 8px 0; }
             td::before {
@@ -158,6 +323,18 @@
                 gap: 25px;
                 justify-content: space-between;
                 padding: 10px 10px 0px 10px;
+            }
+            .note-title-cell {
+                height: auto; 
+                padding-right: 0 !important;
+                border-left: none;
+                padding-left: 0;
+            }
+            .note-title-cell input[name="label"] {
+                margin-top: 8px;
+            }
+            .action-icons {
+                vertical-align: top !important;
             }
         }
     </style>
@@ -192,18 +369,32 @@
             <br><br>
         </center>
         <div class="table-container">
+            <div class="label-filter-bar-center">
+            <form method="get" class="label-filter-bar">
+                <label for="filter_label"><i class="fa fa-tag"></i></label>
+                <select name="label" id="filter_label" class="label-pill-input" style="min-width:100px;max-width:220px;">
+                    <option value="">All Labels</option>
+                    {% for label in all_labels %}
+                        <option value="{{label}}" {% if label == current_label %}selected{% endif %}>{{label}}</option>
+                    {% endfor %}
+                </select>
+                <input type="submit" value="Filter" class="button">
+                {% if current_label %}<a href="/notes/" class="button">Clear</a>{% endif %}
+            </form>
+            </div>
             <table>
                 <tr>
-                    <th>Title</th>
-                    <th>Note</th>
-                    <th colspan="2">Actions</th>
+                    <th style="width:18%">Title</th>
+                    <th style="width:60%">Note</th>
+                    <th colspan="2" style="width:22%">Actions</th>
                 </tr>
                 {% for note in notes %}
                 <tr>
                     <form action="/notes/update/{{forloop.counter0}}" method="post">
                         {% csrf_token %}
-                        <td data-label="Title">
+                        <td data-label="Title" colspan="1" class="note-title-cell">
                             <input type="text" name="title" value="{{note.title}}">
+                            <input type="text" name="label" value="{{note.label}}" class="label-pill-input">
                         </td>
                         <td data-label="Note">
                             <textarea name="content" rows="3">{{note.content}}</textarea>
@@ -222,7 +413,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" style="text-align:center;color:var(--text-muted);">No notes found.</td>
+                    <td colspan="5" style="text-align:center;color:var(--text-muted);">No notes found.</td>
                 </tr>
                 {% endfor %}
             </table>

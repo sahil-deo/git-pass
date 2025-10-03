@@ -26,18 +26,24 @@ def notes(request):
     _mas_password = request.session.get('mas_password')
 
     notes = []
+    current_label = request.GET.get('label', '').strip()
+    all_labels = []
     if _token and _repo and _username and notes_path and _mas_password:
         try:
             check, error, old_content = get_file_from_github(_token, _username, _repo, notes_path, _mas_password)
             if check and old_content:
-                # decode JSON string if needed
                 if isinstance(old_content, str):
                     notes = convertFromString(old_content)
                 else:
                     notes = old_content
+                # collect all unique labels (case-insensitive, non-empty)
+                all_labels = sorted(set(n.get('label','').strip() for n in notes if n.get('label','').strip()), key=lambda x: x.lower())
+                # filter by label if requested
+                if current_label:
+                    notes = [n for n in notes if n.get('label', '').lower() == current_label.lower()]
         except Exception:
             notes = []
-    return render(request, 'notes.html', {'notes': notes})
+    return render(request, 'notes.html', {'notes': notes, 'current_label': current_label, 'all_labels': all_labels})
 
 def newnote(request):
     if checkData(request) == False:
@@ -51,8 +57,9 @@ def newnote(request):
 
     if request.method == 'POST':
         title = request.POST.get('title', '')
+        label = request.POST.get('label', '')
         content = request.POST.get('content', '')
-        note = {'title': title, 'content': content}
+        note = {'title': title, 'label': label, 'content': content}
         notes = []
         check, error, old_content = get_file_from_github(_token, _username, _repo, notes_path, _mas_password)
         if old_content:
@@ -86,9 +93,10 @@ def update_note(request, id):
                 notes = old_content
         if action == 'Edit':
             title = request.POST.get('title', '')
+            label = request.POST.get('label', '')
             content = request.POST.get('content', '')
             if 0 <= id < len(notes):
-                notes[id] = {'title': title, 'content': content}
+                notes[id] = {'title': title, 'label': label, 'content': content}
                 push_to_github(_token, _username, _repo, notes_path, _mas_password, json.dumps(notes))
         elif action == 'Delete':
             if 0 <= id < len(notes):
@@ -599,11 +607,9 @@ def get_file_from_github(token, owner, repo, path, password, branch="main"):
         return (False, "An unexpected error occurred.", None)
 
 def convertToString(lst):
-    # ✅ ChatGPT fix: replaced `:`-joining with JSON string
     return json.dumps(lst)
 
 def convertFromString(s):
-    # ✅ ChatGPT fix: replaced manual split with JSON decoding
     try:
         return json.loads(s)
     except json.JSONDecodeError:
@@ -616,7 +622,7 @@ def enc(data, password):
     data = data.encode()
 
     # Derive key
-    salt = get_random_bytes(16)  # chatGPT: random salt, store this
+    salt = get_random_bytes(16)  
     key = PBKDF2(password, salt, dkLen=32)
 
     # Encrypt
@@ -636,7 +642,7 @@ def denc(data, password):
 
     
     # Decode from base64 to binary
-    raw = base64.b64decode(data)  # chatGPT: decode before splitting
+    raw = base64.b64decode(data)  # decode before splitting
 
     # Extract parts
     salt, nonce, tag, ciphertext = raw[:16], raw[16:32], raw[32:48], raw[48:]

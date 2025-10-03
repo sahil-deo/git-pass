@@ -76,6 +76,8 @@
     {% csrf_token %}
     <label for="title">Title</label>
     <input type="text" name="title" id="title">
+    <label for="label">Label</label>
+    <input type="text" name="label" id="label" placeholder="e.g. work, personal, todo">
     <label for="content">Note</label>
     <textarea name="content" id="content" rows="5"></textarea>
     <input type="submit" value="Save Note">
