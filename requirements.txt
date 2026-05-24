@@ -1,7 +1,7 @@
 asgiref==3.8.1
 certifi==2025.6.15
 charset-normalizer==3.4.2
-Django==5.2.3
+django==5.2.3
 django-session-timeout==0.1.0
 idna==3.10
 pycryptodome==3.23.0

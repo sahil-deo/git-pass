@@ -1,307 +1,407 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
     <meta name="google-site-verification" content="V4tzzPXv6mBhNzH9MFl0iiDhKyNq3Oabn5cPzU1gI7k" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>𝗚</text></svg>">
 
-<style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* --- DISCORD-INSPIRED DARK UI STYLESHEET --- */
+        :root {
+            --bg-main: #0f0f0f;
+            --card-bg: #141414;
+            --card-border: #1e1e1e;
+            --text-primary: #e5e5e5;
+            --text-secondary: #a0a0a0;
+            --text-muted: #5a5a5a;
+            --input-bg: #0a0a0a;
+            --input-border: #2a2a2a;
+            --btn-bg: #1a1a1a;
+            --btn-border: #2a2a2a;
+            --btn-hover: #222;
+            --danger-color: #f87171;
+            --focus-ring: rgba(150, 150, 150, 0.15);
+        }
 
-/* 1. Root Variables & Global Resets */
-:root {
-    --primary-blue: #5865f2;
-    --primary-blue-hover: #4752c4;
-    
-    --bg-page: #202225;          /* Outermost background */
-    --bg-card: #2f3136;          /* Form/Table container background */
-    --bg-input: #202225;          /* Input field background (dark) */
-    
-    --text-primary: #ffffff;      /* Main text (in inputs) */
-    --text-secondary: #b9bbbe;    /* Subtler text (links) */
-    --text-muted: #8e9297;       /* Muted text (labels) */
-    
-    --border-interactive: #040405; /* Border for inputs */
-    --border-divider: rgba(255, 255, 255, 0.06);
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    --border-radius-lg: 8px;
-    --border-radius-sm: 3px;
-}
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-main);
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 40px 20px;
+            line-height: 1.5;
+        }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+        .content-wrapper {
+            width: 100%;
+            max-width: 1000px;
+        }
 
-body {
-    font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background-color: var(--bg-page);
-    color: var(--text-secondary);
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-    padding: 40px 20px;
-}
+        /* Cards / form containers */
+        form,
+        .table-container,
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 32px;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
 
-.content-wrapper {
-    width: 100%;
-    max-width: 900px;
-}
+        h1,
+        h2,
+        h3 {
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 1.75rem;
+            letter-spacing: -0.02em;
+            font-size: 1.4rem;
+        }
 
-/* 2. Main Containers (Forms & Tables) */
-form,
-.table-container {
-    background-color: var(--bg-card);
-    padding: 30px 40px;
-    border-radius: var(--border-radius-lg);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 2rem;
-}
+        a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.15s;
+        }
 
-h1 {
-    font-size: 1.75rem;
-    font-weight: 600;
-    text-align: center;
-    color: var(--text-primary);
-    margin-bottom: 2rem;
-}
+        a:hover {
+            color: var(--text-primary);
+            text-shadow: none;
+        }
 
-a {
-    color: var(--primary-blue);
-    text-decoration: none;
-    font-weight: 500;
-    transition: text-decoration 0.2s ease;
-}
+        /* Form labels */
+        label {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+            margin-top: 20px;
+            display: block;
+        }
 
-a:hover {
-    text-decoration: underline;
-}
+        label:first-of-type {
+            margin-top: 0;
+        }
 
-/* 3. Form Element Styling (home, new, settings) */
-form label {
-    color: var(--text-muted);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-    margin-top: 20px;
-}
-form label:first-of-type {
-    margin-top: 0;
-}
+        /* Inputs */
+        input[type="text"],
+        input[type="password"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            transition: border-color 0.15s;
+        }
 
-form input[type="text"],
-form input[type="password"] {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-interactive);
-    border-radius: var(--border-radius-sm);
-    font-size: 1rem;
-    background-color: var(--bg-input);
-    color: var(--text-primary);
-    transition: border-color 0.2s ease;
-}
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #3a3a3a;
+            box-shadow: 0 0 0 3px var(--focus-ring);
+        }
 
-form input[type="text"]:focus,
-form input[type="password"]:focus {
-    outline: none;
-    border-color: var(--primary-blue);
-}
+        /* Buttons */
+        input[type="submit"],
+        .button,
+        button.main-btn {
+            margin-top: 16px;
+            padding: 10px 18px;
+            border: 1px solid var(--btn-border);
+            border-radius: 8px;
+            background: var(--btn-bg);
+            color: var(--text-primary);
+            font-size: 0.88rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            font-family: inherit;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.15s, color 0.15s;
+            box-shadow: none;
+            transform: none;
+        }
 
-input[type="submit"],
-.button {
-    margin-top: 25px;
-    padding: 12px 20px;
-    border: none;
-    border-radius: var(--border-radius-sm);
-    background-color: var(--primary-blue);
-    color: var(--text-primary);
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: center;
-    transition: background-color 0.2s ease;
-}
+        input[type="submit"]:hover,
+        .button:hover,
+        button.main-btn:hover {
+            background: var(--btn-hover);
+            color: var(--text-primary);
+            text-shadow: none;
+            box-shadow: none;
+            transform: none;
+        }
 
-input[type="submit"]:hover,
-.button:hover {
-    background-color: var(--primary-blue-hover);
-}
+        /* Utility layout */
+        .flex-center {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 1.75rem;
+        }
 
-form > a {
-    text-align: center;
-    margin-top: 1rem;
-    font-size: 0.875rem;
-}
+        hr {
+            border: none;
+            height: 1px;
+            background: var(--card-border);
+            margin: 0 0 1.75rem 0;
+        }
 
-/* 4. Passwords Page Specifics (`passwords.html`) */
+        /* ── Table ── */
+        .table-container {
+            padding: 20px 24px;
+        }
 
-/* Reset styles for non-card forms */
-.table-container form,
-#passwords-actions form,
-#passwords-upload form {
-    all: unset;
-}
+        .table-container form {
+            all: unset;
+        }
 
-#passwords-actions {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    justify-content: center;
-}
-#passwords-actions input[type="submit"] {
-    margin-top: 0;
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-/* Table styling */
-.table-container {
-    padding: 10px 20px;
-}
+        th,
+        td {
+            padding: 13px 10px;
+            text-align: left;
+            vertical-align: middle;
+        }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+        th {
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--card-border);
+        }
 
-th, td {
-    padding: 15px 10px;
-    text-align: left;
-    border-bottom: 1px solid var(--border-divider);
-    vertical-align: middle;
-}
+        tr:not(:last-child) td {
+            border-bottom: 1px solid #111;
+        }
 
-tr:last-child td { border-bottom: none; }
+        tr:hover td {
+            background: #161616;
+        }
 
-th {
-    color: var(--text-muted);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-}
+        td input[type="text"],
+        td textarea {
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 6px 8px;
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.88rem;
+            width: 100%;
+            margin: 0;
+        }
 
-/* Table inputs */
-td input[type="text"] {
-    background: transparent;
-    border: none;
-    padding: 0;
-    color: var(--text-secondary);
-}
-td input[type="text"]:focus {
-    outline: none;
-    background: var(--bg-input);
-    padding: 5px;
-    border-radius: var(--border-radius-sm);
-    color: var(--text-primary);
-}
+        td input[type="text"]:focus,
+        td textarea:focus {
+            outline: none;
+            background: var(--input-bg);
+            border-color: var(--input-border);
+            box-shadow: none;
+        }
 
-/* Table icon buttons */
-td button {
-    all: unset;
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: color 0.2s ease;
-}
-td button:hover {
-    color: var(--text-primary);
-}
-td button i { font-size: 1.1rem; }
+        /* Icon buttons in table */
+        td button {
+            margin: 0;
+            padding: 6px 10px;
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            font-size: 0.88rem;
+            box-shadow: none;
+            transform: none;
+        }
 
-/* Upload and bottom links */
-#passwords-upload {
-    padding: 20px;
-    margin: 10px -20px -10px -20px;
-    border-top: 1px solid var(--border-divider);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-#passwords-upload input[type="submit"] {
-    margin-top: 0;
-    padding: 8px 16px;
-    font-size: 0.9rem;
-}
+        td button:hover {
+            background: #1e1e1e;
+            color: var(--text-primary);
+            box-shadow: none;
+            transform: none;
+        }
 
-.passwords-footer-links {
-    margin-top: 2rem;
-    display: flex;
-    justify-content: space-between;
-}
-/* Table icon buttons */
-td button {
-    all: unset;
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: color 0.2s ease;
-}
-td button:hover {
-    color: var(--text-primary);
-}
-td button i { font-size: 1.1rem; }
+        .icon-group {
+            display: flex;
+            gap: 2px;
+            justify-content: flex-start;
+        }
 
-/* Password visibility toggle */
-.password-cell {
-    position: relative;
-}
+        /* Password cell */
+        .password-cell {
+            position: relative;
+        }
 
-.password-input {
-    width: 100%;
-    padding-right: 35px !important;
-}
+        .password-input {
+            padding-right: 36px !important;
+        }
 
-.password-toggle {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: var(--text-muted);
-    transition: color 0.2s ease;
-    font-size: 0.9rem;
-    z-index: 10;
-}
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: color 0.15s;
+            font-size: 0.85rem;
+        }
 
-.password-toggle:hover {
-    color: var(--text-primary);
-}
+        .password-toggle:hover {
+            color: var(--text-primary);
+        }
 
-/* Hide password by default */
-.password-hidden {
-    -webkit-text-security: disc;
-    text-security: disc;
-}
+        .password-hidden {
+            -webkit-text-security: disc;
+            text-security: disc;
+        }
 
-/* Fallback for browsers that don't support text-security */
-.password-hidden:not(:focus) {
-    font-family: 'Courier New', monospace;
-    color: transparent;
-    text-shadow: 0 0 0 var(--text-secondary);
-    letter-spacing: 0.2em;
-}
+        /* Upload bar */
+        #passwords-upload {
+            padding-top: 16px;
+            margin-top: 16px;
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
 
-.password-hidden:focus {
-    -webkit-text-security: none;
-    text-security: none;
-    color: var(--text-primary);
-    text-shadow: none;
-}
-a.link-danger { color: #f04747; }
-a.link-danger:hover { text-decoration: underline; }
-</style>
+        #passwords-upload input[type="file"] {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            flex: 1;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            body {
+                padding: 16px 12px;
+            }
+
+            form,
+            .table-container,
+            .card {
+                padding: 18px 14px;
+            }
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+                width: 100%;
+            }
+
+            thead {
+                display: none;
+            }
+
+            tr {
+                margin-bottom: 14px;
+                background: #141414;
+                border-radius: 10px;
+                padding: 14px;
+                border: 1px solid var(--card-border);
+            }
+
+            tr:hover td {
+                background: transparent;
+            }
+
+            tr:not(:last-child) td {
+                border-bottom: none;
+            }
+
+            td {
+                padding: 10px 0;
+                border-bottom: 1px solid #111;
+            }
+
+            td:last-child {
+                border-bottom: none;
+            }
+
+            td::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 0.68rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                color: var(--text-muted);
+                margin-bottom: 6px;
+                letter-spacing: 0.05em;
+            }
+
+            td input[type="text"],
+            td textarea {
+                background: var(--input-bg);
+                border: 1px solid var(--input-border);
+                padding: 10px;
+                margin: 0;
+            }
+
+            .icon-group {
+                justify-content: flex-start;
+                margin-top: 8px;
+                gap: 8px;
+            }
+
+            td button {
+                padding: 10px 14px;
+                background: #1a1a1a;
+                flex: 1;
+                text-align: center;
+            }
+        }
+    </style>
 
     {%block head%} {%endblock%}
 </head>
+
 <body>
     <div class="content-wrapper">
         {% block content %}
         {% endblock %}
+        {% include "crypto.html" %}
     </div>
 </body>
+
 </html>

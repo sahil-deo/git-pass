@@ -1,423 +1,353 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Notes</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-blue: #5865f2;
-            --primary-blue-hover: #4752c4;
-            --bg-page: #202225;
-            --bg-card: #2f3136;
-            --bg-input: #202225;
-            --text-primary: #fff;
-            --text-secondary: #b9bbbe;
-            --text-muted: #8e9297;
-            --border-divider: rgba(255,255,255,0.06);
-            --border-radius-lg: 8px;
-            --border-radius-sm: 3px;
-        }
-        /* Base Reset & Typography */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background: var(--bg-page);
-            color: var(--text-secondary);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 40px 20px;
-        }
-        .content-wrapper {
-            width: 100%;
-            max-width: 900px;
-        }
-        h1 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            text-align: center;
-            color: var(--text-primary);
-            margin-bottom: 2rem;
-        }
-        a, a:visited, a:active {
-            color: var(--primary-blue);
-            text-decoration: none;
-            font-weight: 500;
-            transition: text-decoration 0.2s;
-        }
-        a:hover { text-decoration: underline; }
+{% extends "master.html" %}
+{% block title %}Notes — Git-Pass{% endblock %}
 
-        /* General Buttons & Inputs */
-        input[type="submit"], .button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: var(--border-radius-sm);
-            background: var(--primary-blue);
-            color: var(--text-primary);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-            transition: background 0.2s;
-        }
-        input[type="submit"]:hover, .button:hover {
-            background: var(--primary-blue-hover);
-        }
-        
-        /* Label Pill Input Styling (For Filtering/Editing) */
-        .label-pill-input {
-            background: #232428;
-            color: #6a6d78;
-            border: 1.5px solid #232428;
-            border-radius: 999px;
-            padding: 3px 14px;
-            margin-top: 14px;
-            font-size: 0.85rem;
-            outline: none;
-            transition: box-shadow 0.2s;
-            min-width: 40px;
-            max-width: 220px;
-            width: auto;
-            text-align: left;
-            margin: 4px 0 0 0;
-            display: inline-block;
-            opacity: 0.7;
-            box-shadow: none;
-        }
-        .label-pill-input:focus {
-            box-shadow: 0 0 0 1px var(--primary-blue);
-            background: #232428;
-            color: var(--text-secondary);
-            opacity: 1;
-        }
+{% block head %}
+<style>
+/* Override master.html gradient styles for a plain minimal look */
+body {
+    background: #0f0f0f;
+    background-image: none;
+}
+.content-wrapper { max-width: 1100px; }
 
-        /* Filter Bar */
-        .label-filter-bar-center {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 1.2rem;
-        }
-        .label-filter-bar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 1.2rem;
-            background: #232428;
-            border-radius: 999px;
-            padding: 6px 16px;
-            width: fit-content;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .label-filter-bar label {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            font-weight: 500;
-            margin: 0 4px 0 0;
-        }
-        /* Specific button/submit/link styles for the filter bar (Clear button fix) */
-        .label-filter-bar .button, 
-        .label-filter-bar input[type="submit"], 
-        .label-filter-bar a.button {
-            background: #444; /* Dark background for filter/clear buttons */
-            text-decoration: none !important; /* Ensure the Clear link doesn't have an underline */
-            padding: 6px 16px;
-            font-size: 0.95rem;
-            border-radius: 999px;
-            margin: 0 0 0 4px;
-            color: var(--text-primary); /* Ensure link text color is white */
-        }
-        .label-filter-bar a.button:hover {
-            background: #555; /* Slight hover effect for consistency */
-        }
+/* Nav */
+.notes-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 2rem;
+}
+.notes-nav h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #e5e5e5;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    background: none;
+    -webkit-text-fill-color: unset;
+}
+.notes-nav-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
+.nav-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid #2a2a2a;
+    background: #1a1a1a;
+    color: #a0a0a0;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s, color 0.15s;
+}
+.nav-btn:hover { background: #222; color: #e5e5e5; text-shadow: none; }
+.nav-btn.primary { background: #1a1a1a; border-color: #3a3a3a; color: #e5e5e5; }
+.nav-btn.danger  { border-color: #3a1a1a; color: #f87171; }
+.nav-btn.danger:hover { background: #1f1010; }
 
-        /* Table Structure & Styling */
-        .table-container {
-            background: var(--bg-card);
-            padding: 30px 40px;
-            border-radius: var(--border-radius-lg);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.24);
-            margin-bottom: 2rem;
-            display: flex;
-            flex-direction: column;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 15px 10px;
-            text-align: left;
-            vertical-align: top;
-        }
-        th {
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border-divider);
-        }
-        
-        /* Row and Form fixes to align cells properly */
-        tr form {
-            display: contents; 
-        }
-        
-        tr {
-            border-bottom: none; 
-            display: table-row; 
-        }
-        
-        /* Re-introduce the divider line using the row's bottom border */
-        tr:not(:last-child) {
-            border-bottom: 1px solid var(--border-divider);
-        }
-        
-        tr td {
-            border-bottom: none; 
-            padding-top: 15px; 
-            padding-bottom: 15px;
-        }
-        
-        /* Input/Textarea general styles */
-        td input[type="text"], td textarea {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 1rem;
-            resize: none;
-        }
-        td textarea {
-            min-height: 60px;
-            font-family: inherit;
-            overflow-y: hidden;
-            resize: none;
-        }
-        td textarea:focus, td input[type="text"]:focus {
-            outline: none;
-            background: var(--bg-input);
-            color: var(--text-primary);
-            border-radius: var(--border-radius-sm);
-            padding: 5px;
-        }
-        
-        /* Action Icons: Centered vertically */
-        .action-icons {
-            vertical-align: middle !important;
-        }
+/* Label tabs */
+.label-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #1e1e1e;
+}
+.label-tab {
+    padding: 5px 14px;
+    border-radius: 6px;
+    border: 1px solid #2a2a2a;
+    background: transparent;
+    color: #6b6b6b;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+}
+.label-tab:hover { border-color: #3a3a3a; color: #a0a0a0; }
+.label-tab.active { background: #1e1e1e; border-color: #3a3a3a; color: #e5e5e5; }
 
-        /* --- Custom Styles for Title/Label Refinement --- */
-        .note-title-cell {
-            padding-left: 10px; 
-            padding-right: 20px !important;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end; /* Pushes the label to the bottom */
-            height: 100%; 
-        }
-        
-        .note-title-cell input[name="title"] {
-            margin-bottom: 10px; 
-            padding-bottom: 5px;
-            flex-grow: 1;
-            height: auto;
-        }
+/* Card grid */
+#notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
 
-        .note-title-cell input[name="label"] {
-            font-size: 0.75rem; 
-            font-weight: 600;
-            padding: 2px 10px;
-            margin-top: 5px; 
-            width: fit-content; 
-            color: var(--text-muted);
-            border: 1px solid var(--border-divider);
-            border-radius: 999px; 
-            background: rgba(255, 255, 255, 0.05);
-            opacity: 1;
-            flex-shrink: 0;
-        }
-        .note-title-cell input[name="label"]:focus {
-            box-shadow: none; 
-            color: var(--text-primary);
-        }
-        /* ----------------------------------------------- */
+/* Note card */
+.note-card {
+    background: #141414;
+    border: 1px solid #1e1e1e;
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: default;
+    transition: border-color 0.15s;
+}
+.note-card:hover { border-color: #2a2a2a; }
 
-        /* Action Icons Group */
-        td button {
-            all: unset;
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: color 0.2s;
-        }
-        td button:hover { color: var(--text-primary); }
-        td button i { font-size: 1.1rem; }
-        .icon-group {
-            display: flex;
-            gap: 20px;
-            justify-content: flex-center;
-        }
+.card-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #5a5a5a;
+}
+.card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #d4d4d4;
+    line-height: 1.3;
+}
+.card-content {
+    font-size: 0.85rem;
+    color: #6b6b6b;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.note-card.editing .card-content,
+.note-card.editing .card-title,
+.note-card.editing .card-label { display: none; }
 
-        /* Actions Bar */
-        #notes-actions {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            justify-content: center;
-        }
-        #notes-actions input[type="submit"] { margin-top: 0; }
+/* Edit inputs */
+.edit-field {
+    display: none;
+    width: 100%;
+    background: #0f0f0f;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: #d4d4d4;
+    font-size: 0.88rem;
+    font-family: inherit;
+    resize: none;
+    transition: border-color 0.15s;
+}
+.edit-field:focus { outline: none; border-color: #444; }
+.note-card.editing .edit-field { display: block; }
 
-        /* Mobile Styles */
-        @media screen and (max-width: 600px) {
-            body { padding: 20px 10px; align-items: stretch; }
-            .content-wrapper { max-width: 100%; padding: 0; }
-            .table-container { padding: 10px; overflow-x: auto; }
-            #notes-actions { flex-direction: column; gap: 10px; }
-            #notes-actions form input[type="submit"] { width: 100%; font-size: 1rem; }
-            table,thead,tbody,tr,th,td { display: block; width: 100%; }
-            
-            /* Mobile row styling */
-            tr { 
-                margin-bottom: 1.5rem; 
-                border-bottom: none; 
-                padding-bottom: 1rem;
-                border-left: none;
-                padding-left: 0;
-                padding-top: 10px;
-                border-top: 1px solid var(--border-divider); 
-            }
-            tr:first-of-type {
-                border-top: none; 
-            }
+/* Card footer */
+.card-footer {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+.card-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #2a2a2a;
+    background: transparent;
+    color: #6b6b6b;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s;
+}
+.card-btn:hover { background: #1e1e1e; color: #d4d4d4; }
+.card-btn.save-btn  { color: #a3c4f3; border-color: #1e2a3a; display: none; }
+.card-btn.save-btn:hover { background: #0f1a2a; }
+.card-btn.cancel-btn { display: none; }
+.card-btn.delete-btn { color: #f87171; border-color: #2a1a1a; }
+.card-btn.delete-btn:hover { background: #1a0f0f; }
 
-            tr:not(:last-child) {
-                border-bottom: 1px solid var(--border-divider);
-            }
-            
-            tr form {
-                display: block;
-            }
-            
-            th { display: none; }
-            td { padding: 8px 0; }
-            td::before {
-                content: attr(data-label);
-                font-weight: 600;
-                color: var(--text-muted);
-                display: block;
-                margin-bottom: 4px;
-                font-size: 0.55rem;
-                text-transform: uppercase;
-            }
-            td.action-icons {
-                text-align: left;
-                padding-left: 0;
-                gap: 12px !important;
-                justify-content: flex-start;
-            }
-            .icon-group {
-                display: flex;
-                gap: 25px;
-                justify-content: space-between;
-                padding: 10px 10px 0px 10px;
-            }
-            .note-title-cell {
-                height: auto; 
-                padding-right: 0 !important;
-                border-left: none;
-                padding-left: 0;
-            }
-            .note-title-cell input[name="label"] {
-                margin-top: 8px;
-            }
-            .action-icons {
-                vertical-align: top !important;
-            }
-        }
-    </style>
-    <script>
-    // Auto-resize all textareas to fit content
-    function autoResizeTextarea(el) {
-        el.style.height = 'auto';
-        el.style.height = (el.scrollHeight) + 'px';
-    }
-    window.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('textarea').forEach(function(textarea) {
-            autoResizeTextarea(textarea);
-            textarea.addEventListener('input', function() {
-                autoResizeTextarea(this);
-            });
-        });
-    });
-    </script>
-</head>
-<body>
-    <div class="content-wrapper">
-        <h1>All Notes</h1>
-        <hr>
-        <br>
-        <div id="notes-actions">
-            <form action="/notes/new/" method="get" style="display:inline;"><input type="submit" value="New Note"></form>
-            <form action="/passwords/" method="get" style="display:inline;"><input type="submit" value="Back to Passwords"></form>
-            <form action="/settings/" method="get" style="display:inline;"><input type="submit" value="Settings"></form>
-        </div>
-        <center>
-            <a href="/logout">Logout</a>
-            <br><br>
-        </center>
-        <div class="table-container">
-            <div class="label-filter-bar-center">
-            <form method="get" class="label-filter-bar">
-                <label for="filter_label"><i class="fa fa-tag"></i></label>
-                <select name="label" id="filter_label" class="label-pill-input" style="min-width:100px;max-width:220px;">
-                    <option value="">All Labels</option>
-                    {% for label in all_labels %}
-                        <option value="{{label}}" {% if label == current_label %}selected{% endif %}>{{label}}</option>
-                    {% endfor %}
-                </select>
-                <input type="submit" value="Filter" class="button">
-                {% if current_label %}<a href="/notes/" class="button">Clear</a>{% endif %}
-            </form>
-            </div>
-            <table>
-                <tr>
-                    <th style="width:18%">Title</th>
-                    <th style="width:60%">Note</th>
-                    <th colspan="2" style="width:22%">Actions</th>
-                </tr>
-                {% for note in notes %}
-                <tr>
-                    <form action="/notes/update/{{forloop.counter0}}" method="post">
-                        {% csrf_token %}
-                        <td data-label="Title" colspan="1" class="note-title-cell">
-                            <input type="text" name="title" value="{{note.title}}">
-                            <input type="text" name="label" value="{{note.label}}" class="label-pill-input">
-                        </td>
-                        <td data-label="Note">
-                            <textarea name="content" rows="3">{{note.content}}</textarea>
-                        </td>
-                        <td class="action-icons" data-label="Actions">
-                            <div class="icon-group">
-                                <button type="submit" name="action" value="Edit" title="Save Changes">
-                                    <i class="fa-solid fa-floppy-disk"></i>
-                                </button>
-                                <button type="submit" name="action" value="Delete" title="Delete Note">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </form>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" style="text-align:center;color:var(--text-muted);">No notes found.</td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
+.note-card.editing .save-btn   { display: inline-flex; }
+.note-card.editing .cancel-btn { display: inline-flex; }
+.note-card.editing .edit-btn   { display: none; }
+
+/* Empty / loading */
+.notes-status {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #3a3a3a;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+    .notes-nav { flex-direction: column; align-items: flex-start; }
+    #notes-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="notes-nav">
+    <h1>Notes</h1>
+    <div class="notes-nav-actions">
+        <a href="/notes/new/" class="nav-btn primary">+ New Note</a>
+        <a href="/passwords/" class="nav-btn">Passwords</a>
+        <a href="/settings/" class="nav-btn">Settings</a>
+        <a href="/logout" class="nav-btn danger">Logout</a>
     </div>
-</body>
-</html>
+</div>
+
+<div class="label-tabs" id="label-tabs">
+    <button class="label-tab active" data-label="" onclick="filterLabel(this, '')">All</button>
+</div>
+
+<div id="notes-grid">
+    <div class="notes-status">Loading…</div>
+</div>
+
+<script>
+const escHtml = s => (s || '').toString()
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+
+// allNotes[i] = { note: {title,label,content}, realIndex: i }
+let allNotes = [];
+let activeLabel = '';
+
+function filterLabel(btn, label) {
+    document.querySelectorAll('.label-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    activeLabel = label;
+    renderGrid();
+}
+
+function renderGrid() {
+    const grid = document.getElementById('notes-grid');
+    grid.innerHTML = '';
+
+    // FIX: filter on n.note.label, not n.label
+    const filtered = activeLabel
+        ? allNotes.filter(n => (n.note.label || '').toLowerCase().trim() === activeLabel)
+        : allNotes;
+
+    if (filtered.length === 0) {
+        grid.innerHTML = `<div class="notes-status">${activeLabel ? 'No notes with this label.' : 'No notes yet.'}</div>`;
+        return;
+    }
+
+    filtered.forEach(({ note, realIndex }) => {
+        grid.appendChild(buildCard(note, realIndex));
+    });
+}
+
+function buildCard(note, index) {
+    const card = document.createElement('div');
+    card.className = 'note-card';
+    card.dataset.index = index;
+
+    card.innerHTML = `
+        ${note.label ? `<div class="card-label">${escHtml(note.label)}</div>` : ''}
+        <div class="card-title">${escHtml(note.title) || '<span style="opacity:.35;font-style:italic;font-weight:400;">Untitled</span>'}</div>
+        <div class="card-content">${escHtml(note.content)}</div>
+
+        <input   class="edit-field" id="edit-title-${index}"   type="text"  value="${escHtml(note.title)}"   placeholder="Title">
+        <input   class="edit-field" id="edit-label-${index}"   type="text"  value="${escHtml(note.label)}"   placeholder="Label">
+        <textarea class="edit-field" id="edit-content-${index}" rows="5"    placeholder="Note content…">${escHtml(note.content)}</textarea>
+
+        <div class="card-footer">
+            <button class="card-btn delete-btn"  onclick="doDelete(${index})"><i class="fa-solid fa-trash"></i> Delete</button>
+            <button class="card-btn cancel-btn"  onclick="toggleEdit(${index}, false)">Cancel</button>
+            <button class="card-btn save-btn"    onclick="doSave(${index})"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+            <button class="card-btn edit-btn"    onclick="toggleEdit(${index}, true)"><i class="fa-solid fa-pen"></i> Edit</button>
+        </div>
+    `;
+
+    const ta = card.querySelector('textarea');
+    ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; });
+
+    return card;
+}
+
+function toggleEdit(index, on) {
+    const card = document.querySelector(`.note-card[data-index="${index}"]`);
+    if (!card) return;
+    card.classList.toggle('editing', on);
+    if (on) {
+        const ta = card.querySelector('textarea');
+        ta.style.height = 'auto';
+        ta.style.height = ta.scrollHeight + 'px';
+        document.getElementById(`edit-title-${index}`).focus();
+    }
+}
+
+async function doSave(index) {
+    const encStr = "{{ encrypted_content|escapejs }}";
+    const pw     = "{{ mas_password|escapejs }}";
+    let notes = await denc(encStr, pw);
+    notes[index] = {
+        title:   document.getElementById(`edit-title-${index}`).value   || '',
+        label:   document.getElementById(`edit-label-${index}`).value   || '',
+        content: document.getElementById(`edit-content-${index}`).value || ''
+    };
+    await submitForm(index, notes, pw);
+}
+
+async function doDelete(index) {
+    if (!confirm('Delete this note?')) return;
+    const encStr = "{{ encrypted_content|escapejs }}";
+    const pw     = "{{ mas_password|escapejs }}";
+    let notes = await denc(encStr, pw);
+    notes.splice(index, 1);
+    await submitForm(index, notes, pw);
+}
+
+async function submitForm(index, notes, pw) {
+    const newEnc = await enc(notes, pw);
+    const form   = document.createElement('form');
+    form.method  = 'post';
+    form.action  = `/notes/update/${index}`;
+    form.style.cssText = 'position:fixed;left:-9999px;top:-9999px;visibility:hidden;';
+
+    [['csrfmiddlewaretoken', '{{ csrf_token }}'], ['encrypted_content', newEnc]].forEach(([name, val]) => {
+        const inp = document.createElement('input');
+        inp.type = 'hidden'; inp.name = name; inp.value = val;
+        form.appendChild(inp);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const encStr = "{{ encrypted_content|escapejs }}";
+    const pw     = "{{ mas_password|escapejs }}";
+
+    let raw = [];
+    if (encStr && encStr.trim()) raw = await denc(encStr, pw);
+
+    allNotes = raw.map((note, i) => ({ note, realIndex: i }));
+
+    // Build label tabs from actual data
+    const labelSet = new Set();
+    raw.forEach(n => { if (n.label && n.label.trim()) labelSet.add(n.label.trim().toLowerCase()); });
+    const tabs = document.getElementById('label-tabs');
+    Array.from(labelSet).sort().forEach(label => {
+        const btn = document.createElement('button');
+        btn.className = 'label-tab';
+        btn.textContent = label;
+        btn.onclick = () => filterLabel(btn, label);
+        tabs.appendChild(btn);
+    });
+
+    renderGrid();
+});
+</script>
+
+{% endblock %}

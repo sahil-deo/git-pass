@@ -1,31 +1,50 @@
-{%extends "master.html" %}
+{% extends "master.html" %}
+{% block title %}New Password{% endblock %}
 
-{%block title%} New Password {%endblock%}
-
-{%block content%}
+{% block content %}
 
 <h1>New Password</h1>
-<hr>
-<br>
-    <form action="" method="post">   
-        {% csrf_token %}
-            
-            <!-- PASSWORD INFO -->
 
-        
-            <label for="name">Name</label>
-            <input type="text" name="name" id="name">
-            
-            <label for="uname">Username</label>
-            <input type="text" name="uname" id="uname">
-            
-            <label for="password">Password</label>
-            <input type="password" name="password" id="password">
-            
-            <!-- SUBMIT -->
-            <input type="submit" value="Save Password">
-            <a href="..">Return</a>
+<form action="" method="post" id="new-password-form">
+    {% csrf_token %}
+    <input type="hidden" name="encrypted_content" id="enc-content" value="">
 
-        </form>
+    <label for="name">Name</label>
+    <input type="text" id="name" placeholder="e.g. GitHub, Gmail…">
 
-{%endblock%}
+    <label for="uname">Username</label>
+    <input type="text" id="uname" placeholder="username or email">
+
+    <label for="password">Password</label>
+    <input type="password" id="password" placeholder="••••••••">
+
+    <input type="submit" value="Save Password">
+    <a href="/passwords/" style="text-align:center;margin-top:0.5rem;font-size:0.9rem;">← Return to Passwords</a>
+</form>
+
+<script>
+document.getElementById('new-password-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const name  = document.getElementById('name').value || ' ';
+    const uname = document.getElementById('uname').value || ' ';
+    const pass  = document.getElementById('password').value || ' ';
+
+    const encryptedContentStr = "{{ encrypted_content|escapejs }}";
+    const masPassword = "{{ mas_password|escapejs }}";
+
+    let dataList = [];
+    if (encryptedContentStr && encryptedContentStr.trim() !== '') {
+        dataList = await denc(encryptedContentStr, masPassword);
+    }
+
+    dataList.push([name, uname, pass]);
+    dataList = dataList.filter(item => Array.isArray(item) && item.length > 0);
+    dataList.sort((a, b) => String(a[0]).localeCompare(String(b[0]), undefined, { sensitivity: 'accent' }));
+
+    const newEncrypted = await enc(dataList, masPassword);
+    document.getElementById('enc-content').value = newEncrypted;
+    this.submit();
+});
+</script>
+
+{% endblock %}

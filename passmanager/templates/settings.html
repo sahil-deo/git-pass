@@ -1,47 +1,40 @@
 {% extends "master.html" %}
-{%block title %}Git-Pass{%endblock%}
+{% block title %}Settings — Git-Pass{% endblock %}
 
-{%block content%}
+{% block content %}
 
-<center>
+<h1>Settings</h1>
 
-    <h1>
-        Settings
-        
-    </h1>
-        <hr>
-        <br>
-        <form action="" method="post">
-            {% csrf_token %}
-            
-            <label for="username">Username</label>
-            <input type="text" name="username" id="username" value="{{username}}">
+<form action="" method="post">
+    {% csrf_token %}
 
-            <label for="token">Token</label>
-            <input type="text" name="token" id="token" value="{{token}}">
+    <label for="username">GitHub Username</label>
+    <input type="text" name="username" id="username" value="{{ username }}" placeholder="octocat">
 
-            <label for="repo">Repository Name</label>
-            <input type="text" name="repo" id="repo" value="{{repo}}">
+    <label for="token">Personal Access Token</label>
+    <input type="text" name="token" id="token" value="{{ token }}" placeholder="ghp_…">
 
+    <label for="repo">Repository Name</label>
+    <input type="text" name="repo" id="repo" value="{{ repo }}" placeholder="my-passwords-repo">
 
-            <label for="path">Passwords File Name (Make sure the file is present in the repo)</label>
-            <input type="text" name="path" id="path" value="{{path}}">
+    <label for="path">Passwords File Name</label>
+    <input type="text" name="path" id="path" value="{{ path }}" placeholder="passwords.enc">
 
-            <label for="notes_path">Notes File Name (Make sure the file is present in the repo)</label>
-            <input type="text" name="notes_path" id="notes_path" value="{{notes_path}}">
-            
-            <label for="mas_password">Master Password</label>
-            <input type="password" name="mas_password">
+    <label for="notes_path">Notes File Name</label>
+    <input type="text" name="notes_path" id="notes_path" value="{{ notes_path }}" placeholder="notes.enc">
 
-            <a href="reset-master/">Change Master Password</a>
-            <input type="submit" name="action" value="Save">
-            <a href="../">Return</a>
-        </form>
-        <div class="passwords-footer-links">
-        <a class="link-danger" href="deleteall/">Delete All Passwords</a>
-        <a href="/logout">Logout</a>
-    </div>
-    </center>
+    <label for="mas_password">Master Password (leave blank to keep current)</label>
+    <input type="password" name="mas_password" id="mas_password" placeholder="••••••••">
 
+    <a href="reset-master/" style="font-size:0.9rem;margin-top:0.25rem;">Change Master Password</a>
 
-{%endblock%}
+    <input type="submit" name="action" value="Save Settings">
+    <a href="../" style="text-align:center;margin-top:0.25rem;font-size:0.9rem;">← Return to Passwords</a>
+</form>
+
+<div style="display:flex;justify-content:space-between;margin-top:1rem;padding:0 4px;">
+    <a href="deleteall/" style="color:var(--danger-color);font-size:0.9rem;">⚠ Delete All Passwords</a>
+    <a href="/logout" style="font-size:0.9rem;">Logout</a>
+</div>
+
+{% endblock %}

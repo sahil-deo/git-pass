@@ -32,18 +32,10 @@ def notes(request):
         try:
             check, error, old_content = get_file_from_github(_token, _username, _repo, notes_path, _mas_password)
             if check and old_content:
-                if isinstance(old_content, str):
-                    notes = convertFromString(old_content)
-                else:
-                    notes = old_content
-                # collect all unique labels (case-insensitive, non-empty)
-                all_labels = sorted(set(n.get('label','').strip() for n in notes if n.get('label','').strip()), key=lambda x: x.lower())
-                # filter by label if requested
-                if current_label:
-                    notes = [n for n in notes if n.get('label', '').lower() == current_label.lower()]
+                notes = old_content
         except Exception:
-            notes = []
-    return render(request, 'notes.html', {'notes': notes, 'current_label': current_label, 'all_labels': all_labels})
+            notes = ""
+    return render(request, 'notes.html', {'encrypted_content': notes, 'mas_password': _mas_password, 'current_label': current_label})
 
 def newnote(request):
     if checkData(request) == False:
@@ -56,21 +48,14 @@ def newnote(request):
     _mas_password = request.session.get('mas_password')
 
     if request.method == 'POST':
-        title = request.POST.get('title', '')
-        label = request.POST.get('label', '')
-        content = request.POST.get('content', '')
-        note = {'title': title, 'label': label, 'content': content}
-        notes = []
-        check, error, old_content = get_file_from_github(_token, _username, _repo, notes_path, _mas_password)
-        if old_content:
-            if isinstance(old_content, str):
-                notes = convertFromString(old_content)
-            else:
-                notes = old_content
-        notes.append(note)
-        push_to_github(_token, _username, _repo, notes_path, _mas_password, json.dumps(notes))
+        encrypted_content = request.POST.get('encrypted_content')
+        if encrypted_content:
+            push_to_github(_token, _username, _repo, notes_path, _mas_password, encrypted_content)
         return redirect('/notes/')
-    return render(request, 'newnote.html')
+
+    check, error, old_content = get_file_from_github(_token, _username, _repo, notes_path, _mas_password)
+    context = {'encrypted_content': old_content if old_content else "", 'mas_password': _mas_password}
+    return render(request, 'newnote.html', context)
 
 def update_note(request, id):
     if checkData(request) == False:
@@ -83,25 +68,9 @@ def update_note(request, id):
     _mas_password = request.session.get('mas_password')
 
     if request.method == 'POST':
-        action = request.POST.get('action')
-        check, error, old_content = get_file_from_github(_token, _username, _repo, notes_path, _mas_password)
-        notes = []
-        if old_content:
-            if isinstance(old_content, str):
-                notes = convertFromString(old_content)
-            else:
-                notes = old_content
-        if action == 'Edit':
-            title = request.POST.get('title', '')
-            label = request.POST.get('label', '')
-            content = request.POST.get('content', '')
-            if 0 <= id < len(notes):
-                notes[id] = {'title': title, 'label': label, 'content': content}
-                push_to_github(_token, _username, _repo, notes_path, _mas_password, json.dumps(notes))
-        elif action == 'Delete':
-            if 0 <= id < len(notes):
-                notes.pop(id)
-                push_to_github(_token, _username, _repo, notes_path, _mas_password, json.dumps(notes))
+        encrypted_content = request.POST.get('encrypted_content')
+        if encrypted_content:
+            push_to_github(_token, _username, _repo, notes_path, _mas_password, encrypted_content)
         return redirect('/notes/')
     return redirect('/notes/')
 
@@ -115,12 +84,9 @@ def delete_note(request, id):
     notes_path = request.COOKIES.get('_notes_path') or request.session.get('notes_path')
     _mas_password = request.session.get('mas_password')
 
-    check, error, notes = get_file_from_github(_token, _username, _repo, notes_path, _mas_password)
-    if not notes:
-        notes = []
-    if 0 <= id < len(notes):
-        notes.pop(id)
-        push_to_github(_token, _username, _repo, notes_path, _mas_password, notes)
+    encrypted_content = request.POST.get('encrypted_content')
+    if encrypted_content:
+        push_to_github(_token, _username, _repo, notes_path, _mas_password, encrypted_content)
     return redirect('/notes/')
 
 def checkData(request):
@@ -137,7 +103,7 @@ def checkData(request):
 
 
 def home(request):
-    
+
     c_token = request.COOKIES.get('_token')
     c_repo = request.COOKIES.get('_repo')
     c_username = request.COOKIES.get('_username')
@@ -180,16 +146,16 @@ def home(request):
     t, r, u, p, m, n = "", "", "", "", "", ""
     if c_token != None:
         t = "Token is Saved, Input to Change Token"
-    
+
     if c_repo != None:
         r = c_repo
-        
+
     if c_username != None:
         u = c_username
-    
+
     if c_path != None:
         p = c_path
-    
+
     if c_notes_path != None:
         n = c_notes_path
 
@@ -199,17 +165,17 @@ def home(request):
         'username': u,
         'path': p,
         'notes_path': n,
- 
+
     }
 
     template = loader.get_template('home.html')
     return HttpResponse(template.render(context, request))
 
 def passwords(request):
-    
+
     if checkData(request) == False:
         return redirect("/")
-        
+
 
 
     _token = request.COOKIES.get('_token')
@@ -226,67 +192,54 @@ def passwords(request):
             del request.session['mas_password']
             return redirect("/")
 
-        content = [[]]
-        if old_content != None: 
-            content = convertFromString(old_content)
+        content = ""
+        if old_content != None:
+            content = old_content
 
-        
-        context = {'content': content}
-        
-    except(): 
-        
-        context = {'content', [[]]}
-        
+
+        context = {'content': content, 'mas_password': _mas_password}
+
+    except:
+
+        context = {'content': "", 'mas_password': _mas_password}
+
 
     return render(request, 'passwords.html', context)
 
 def newpassword(request):
-    
-    
+
+
     if checkData(request) == False:
         return redirect("/")
 
     if request.method == 'POST':
-        
-        _name = request.POST.get('name')
-        _uname = request.POST.get('uname')
-        _pass = request.POST.get('password')
-        _mas_password = request.session.get('mas_password')
 
+        _mas_password = request.session.get('mas_password')
         _token = request.COOKIES.get('_token')
         _repo = request.COOKIES.get('_repo')
         _username = request.COOKIES.get('_username')
         _path = request.COOKIES.get('_path')
-        
-        if _name == "":
-            _name = " "
-        
-        if _uname == "":
-            _uname = " "
-        
-        if _pass == "":
-            _pass = " "
 
-        content = [_name, _uname, _pass]
+        encrypted_content = request.POST.get('encrypted_content')
+        if encrypted_content:
+            push_to_github(_token, _username, _repo, _path, _mas_password, encrypted_content)
+            return redirect("/passwords/")
 
-        check, error, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
-
-        if old_content == None:
-            old_content = [[]]
-
-        elif old_content != None:
-            old_content = convertFromString(old_content)
-        old_content.append(content)
-        push_to_github(_token, _username, _repo, _path, _mas_password,convertToString(sortList(old_content)))
-    
-    return render(request, 'new.html')
+    _mas_password = request.session.get('mas_password')
+    _token = request.COOKIES.get('_token')
+    _repo = request.COOKIES.get('_repo')
+    _username = request.COOKIES.get('_username')
+    _path = request.COOKIES.get('_path')
+    check, error, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
+    context = {'encrypted_content': old_content if old_content else "", 'mas_password': _mas_password}
+    return render(request, 'new.html', context)
 
 def settings(request):
 
-    
+
     if checkData(request) == False:
         return redirect("/")
-    
+
     c_token = request.COOKIES.get('_token')
     c_repo = request.COOKIES.get('_repo')
     c_username = request.COOKIES.get('_username')
@@ -319,18 +272,18 @@ def settings(request):
 
 
         pass
-    
+
 
     t, r, u, p, m, n = "", "", "", "", "", ""
     if c_token != None:
         t = "Token is Saved, Input to Change Token"
-    
+
     if c_repo != None:
         r = c_repo
-        
+
     if c_username != None:
         u = c_username
-    
+
     if c_path != None:
         p = c_path
 
@@ -357,13 +310,13 @@ def instructions(request):
 def reset_master(request):
     if checkData(request) == False:
         return redirect("/")
-    
+
     if request.method == 'POST':
 
-        current_password = request.POST.get("old_password") 
+        current_password = request.POST.get("old_password")
         new_password = request.POST.get("new_password")
         confirm_password = request.POST.get("confirm_password")
-        
+
         if current_password == request.session.get('mas_password'):
 
             if new_password == confirm_password:
@@ -372,19 +325,19 @@ def reset_master(request):
                 repo = request.COOKIES.get('_repo')
                 username = request.COOKIES.get('_username')
                 path = request.COOKIES.get('_path')
-                
+
                 check, error, content = get_file_from_github(token, username, repo, path, mas_password)
-                
-                if check:  
+
+                if check:
                     decrypted_token = denc(request.COOKIES.get('_token'), mas_password)
-                    
+
                     request.session['mas_password'] = new_password
-                    
+
                     response = HttpResponseRedirect("../")
                     response.set_cookie('_token', enc(decrypted_token, new_password))
-                    
+
                     push_to_github(enc(decrypted_token, new_password), username, repo, path, new_password, content)
-                    
+
                     messages.success(request, "Master password updated successfully!")
                     return response
                 else:
@@ -394,70 +347,46 @@ def reset_master(request):
         else:
             pass
             messages.error(request, "Current password is incorrect!")
-    
+
     return render(request, "resetmaster.html")
 
 def update(request, id):
 
 
-    
+
     if checkData(request) == False:
         return redirect("/")
-    
+
     if request.method == 'POST':
         _mas_password = request.session.get('mas_password')
         _token = request.COOKIES.get('_token')
         _repo = request.COOKIES.get('_repo')
         _username = request.COOKIES.get('_username')
         _path = request.COOKIES.get('_path')
-        
-        if request.POST.get('action') == "Delete":
-            return delete(request, id)
 
-        _name = request.POST.get('0')
-        _uname = request.POST.get('1')
-        _pass = request.POST.get('2')
-        
-        if _name == "":
-            _name = " "
-        
-        if _uname == "":
-            _uname = " "
-        
-        if _pass == "":
-            _pass = " "
-        
-        content = [_name, _uname, _pass]
-
-        a, b, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)        
-        old_content = convertFromString(old_content)
-        del old_content[id]
-        old_content.append(content)
-
-
-        push_to_github(_token, _username, _repo, _path, _mas_password,convertToString(sortList(old_content)))
+        encrypted_content = request.POST.get('encrypted_content')
+        if encrypted_content:
+            push_to_github(_token, _username, _repo, _path, _mas_password, encrypted_content)
         return redirect("../")
 
 def delete(request, id):
 
-    
+
     if checkData(request) == False:
         return redirect("/")
     if request.method == 'POST':
-        
+
         _mas_password = request.session.get('mas_password')
 
         _token = request.COOKIES.get('_token')
         _repo = request.COOKIES.get('_repo')
         _username = request.COOKIES.get('_username')
         _path = request.COOKIES.get('_path')
-        
 
-        a, b, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)        
-        old_content = convertFromString(old_content)
-        del old_content[id]
 
-        push_to_github(_token, _username, _repo, _path, _mas_password,convertToString(sortList(old_content)))
+        encrypted_content = request.POST.get('encrypted_content')
+        if encrypted_content:
+            push_to_github(_token, _username, _repo, _path, _mas_password, encrypted_content)
         return redirect("../")
 
     pass
@@ -490,7 +419,7 @@ def logout(request):
 def create_backup(request):
     if checkData(request) == False:
         return redirect('/')
-    
+
 
 
     if request.method == 'POST':
@@ -536,8 +465,8 @@ def push_to_github(token, owner, repo, path, password, new_content, commit_msg="
         else:
             sha = None  # File does not exist yet
 
-        # Prepare content (sort, encrypt, encode, decode)
-        encoded_content = base64.b64encode(enc(new_content, password).encode()).decode()
+        # Prepare content (encode the client's encrypted string)
+        encoded_content = base64.b64encode(new_content.encode()).decode()
 
         payload = {
             "message": commit_msg,
@@ -554,7 +483,7 @@ def push_to_github(token, owner, repo, path, password, new_content, commit_msg="
             return result.json()
         else:
             return None
-        
+
     except Exception:
         pass
 
@@ -581,17 +510,9 @@ def get_file_from_github(token, owner, repo, path, password, branch="main"):
         if response.status_code == 200:
             content_b64 = response.json().get('content')
             encrypted_content = base64.b64decode(content_b64).decode()
-            
-            # Step 3: Decrypt the file content itself. This could also fail.
-            try:
-                decrypted_content = ""
-                if(encrypted_content != "\n"):
-                    print("size:", len(encrypted_content))
-                    decrypted_content = denc(encrypted_content, password)
-                return (True, "File fetched successfully.", decrypted_content)
-            except ValueError:
-                return (False, "Could not decrypt the file content. The Master Password may be incorrect for this file.", None)
-        
+
+            return (True, "File fetched successfully.", encrypted_content)
+
         # Handle API errors
         elif response.status_code == 401:
             return (False, "Authentication failed. Your GitHub token is likely invalid.", None)
@@ -622,7 +543,7 @@ def enc(data, password):
     data = data.encode()
 
     # Derive key
-    salt = get_random_bytes(16)  
+    salt = get_random_bytes(16)
     key = PBKDF2(password, salt, dkLen=32)
 
     # Encrypt
@@ -640,7 +561,7 @@ def enc(data, password):
 
 def denc(data, password):
 
-    
+
     # Decode from base64 to binary
     raw = base64.b64decode(data)  # decode before splitting
 
@@ -674,37 +595,24 @@ def fromCsv(file_path):
 
 
 def upload_csv(request):
-    
-    
+
+
     if not checkData(request):
         return redirect("/")
 
-    
-    
+
+
     if request.method == 'POST' and request.FILES.get('passwordfile'):
         _mas_password = request.session.get('mas_password')
         _token = request.COOKIES.get('_token')
         _repo = request.COOKIES.get('_repo')
         _username = request.COOKIES.get('_username')
         _path = request.COOKIES.get('_path')
-        
-        
-        uploaded_file = request.FILES['passwordfile']
-        decoded_file = uploaded_file.read().decode('utf-8').splitlines()
-        reader = csv.reader(decoded_file)
 
-        next(reader, None) # skip header row
 
-        data = []
-        for row in reader:
-            if len(row) >= 1:
-                data.append(row[:3]) 
-
-        check, error, old_content = (get_file_from_github(_token, _username, _repo, _path, _mas_password))        
-        old_content = convertFromString(old_content)
-        old_content.extend(data)
-
-        push_to_github(_token, _username, _repo, _path, _mas_password,convertToString(sortList(old_content)))
+        encrypted_content = request.POST.get('encrypted_content')
+        if encrypted_content:
+            push_to_github(_token, _username, _repo, _path, _mas_password, encrypted_content)
 
         return redirect("../")
 
