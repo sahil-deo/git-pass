@@ -9,9 +9,13 @@ from Crypto.Random import get_random_bytes
 
 import base64
 import json
+import logging
 import requests
 import csv
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
+
 # Create your views here.
 def notes(request):
     # Render the notes page, separate from passwords
@@ -187,8 +191,8 @@ def passwords(request):
     try:
         check, error, old_content = get_file_from_github(_token, _username, _repo, _path, _mas_password)
 
-
         if not check:
+            messages.error(request, error)
             del request.session['mas_password']
             return redirect("/")
 
@@ -196,13 +200,12 @@ def passwords(request):
         if old_content != None:
             content = old_content
 
-
         context = {'content': content, 'mas_password': _mas_password}
 
-    except:
-
+    except Exception:
+        logger.exception("Unexpected password page error for repo=%s/%s path=%s", _repo, _username, _path)
+        messages.error(request, "Something went wrong while contacting GitHub. Please try again.")
         context = {'content': "", 'mas_password': _mas_password}
-
 
     return render(request, 'passwords.html', context)
 
@@ -448,6 +451,18 @@ def create_backup(request):
 
 
 
+def _log_github_error(action, owner, repo, path, details, exc_info=False):
+    logger.warning(
+        "GitHub %s failed for repo=%s/%s path=%s: %s",
+        action,
+        owner,
+        repo,
+        path,
+        details,
+        exc_info=exc_info,
+    )
+
+
 def push_to_github(token, owner, repo, path, password, new_content, commit_msg="Update via token", branch="main"):
 
     try:
@@ -458,14 +473,12 @@ def push_to_github(token, owner, repo, path, password, new_content, commit_msg="
 
         url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
 
-        # Get current file SHA (needed for update)
         response = requests.get(url, headers=headers, params={"ref": branch})
         if response.status_code == 200:
             sha = response.json()['sha']
         else:
-            sha = None  # File does not exist yet
+            sha = None
 
-        # Prepare content (encode the client's encrypted string)
         encoded_content = base64.b64encode(new_content.encode()).decode()
 
         payload = {
@@ -476,27 +489,36 @@ def push_to_github(token, owner, repo, path, password, new_content, commit_msg="
         if sha:
             payload["sha"] = sha
 
-        # Push file (create or update)
         result = requests.put(url, headers=headers, data=json.dumps(payload))
 
         if result.status_code in [200, 201]:
             return result.json()
-        else:
-            return None
+
+        _log_github_error(
+            "push",
+            owner,
+            repo,
+            path,
+            f"status={result.status_code} response={result.text[:300]}",
+        )
+        return None
 
     except Exception:
-        pass
+        _log_github_error("push", owner, repo, path, "unexpected exception while pushing", exc_info=True)
+        return None
+
 
 def get_file_from_github(token, owner, repo, path, password, branch="main"):
 
     try:
-        # Step 1: Decrypt token. This is where the ValueError can happen.
         try:
             decrypted_token = denc(token, password)
-        except ValueError: # Catch the specific "MAC check failed" error
-            return (False, "Decryption failed. Please check your Master Password.", None)
-        except Exception as e: # Catch any other unexpected decryption errors
-            return (False, "An unexpected decryption error occurred.", None)
+        except ValueError:
+            _log_github_error("fetch", owner, repo, path, "master password mismatch or token decryption failed")
+            return (False, "Incorrect master password.", None)
+        except Exception:
+            _log_github_error("fetch", owner, repo, path, "unexpected token decryption error", exc_info=True)
+            return (False, "Something went wrong while contacting GitHub. Please try again.", None)
 
         headers = {
             "Authorization": f"token {decrypted_token}",
@@ -504,28 +526,30 @@ def get_file_from_github(token, owner, repo, path, password, branch="main"):
         }
         url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
 
-        # Step 2: Get the file content
         response = requests.get(url, headers=headers, params={"ref": branch})
 
         if response.status_code == 200:
             content_b64 = response.json().get('content')
             encrypted_content = base64.b64decode(content_b64).decode()
-
             return (True, "File fetched successfully.", encrypted_content)
 
-        # Handle API errors
         elif response.status_code == 401:
-            return (False, "Authentication failed. Your GitHub token is likely invalid.", None)
+            _log_github_error("fetch", owner, repo, path, f"GitHub token rejected status={response.status_code} message={response.text[:300]}")
+            return (False, "GitHub token is invalid or expired.", None)
         elif response.status_code == 404:
-            return (False, "File or Repository not found. Check your Username, Repo Name, and File Path.", None)
+            _log_github_error("fetch", owner, repo, path, f"GitHub file/repo not found status={response.status_code} message={response.text[:300]}")
+            return (False, "Repository, file path, or access is incorrect.", None)
         else:
             error_details = response.json().get('message', response.text)
-            return (False, f"GitHub API Error: {response.status_code} - {error_details}", None)
+            _log_github_error("fetch", owner, repo, path, f"status={response.status_code} message={error_details}")
+            return (False, "Something went wrong while contacting GitHub. Please try again.", None)
 
-    except requests.exceptions.RequestException as e:
-        return (False, "A network error occurred. Please check your internet connection.", None)
-    except Exception as e:
-        return (False, "An unexpected error occurred.", None)
+    except requests.exceptions.RequestException:
+        _log_github_error("fetch", owner, repo, path, "network error while contacting GitHub", exc_info=True)
+        return (False, "Connection to GitHub failed. Please try again.", None)
+    except Exception:
+        _log_github_error("fetch", owner, repo, path, "unexpected exception while fetching GitHub content", exc_info=True)
+        return (False, "Something went wrong while contacting GitHub. Please try again.", None)
 
 def convertToString(lst):
     return json.dumps(lst)

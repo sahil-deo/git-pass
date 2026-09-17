@@ -169,6 +169,31 @@
             margin-bottom: 1.75rem;
         }
 
+        .messages {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .message {
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            background: #151515;
+            color: var(--text-primary);
+        }
+
+        .message.error {
+            border-color: rgba(248, 113, 113, 0.35);
+            color: #fca5a5;
+        }
+
+        .message.success {
+            border-color: rgba(74, 222, 128, 0.35);
+            color: #86efac;
+        }
+
         hr {
             border: none;
             height: 1px;
@@ -398,6 +423,14 @@
 
 <body>
     <div class="content-wrapper">
+        {% if messages %}
+        <div class="messages" aria-live="polite">
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         {% block content %}
         {% endblock %}
         {% include "crypto.html" %}
